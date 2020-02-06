@@ -341,7 +341,8 @@ MenuNmap_func() {
     read -p $'\033[37;1mR: \033[m' dig
 
     if [[ "$dig" =~ ^[[:alpha:]] ]]; then
-      echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!\nSÓ É ACEITO NÚMEROS!\n\n${Br}RETORNAR AO NMAP?${Fm} ${Rd}[${Fm}${Br}S/N${Rd}]${Fm}\n${Fm}R: ${Fm}"
+      echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!\nSÓ É ACEITO NÚMEROS!\n\n${Br}RETORNAR AO NMAP?${Fm} \
+      ${Rd}[${Fm}${Br}S/N${Rd}]${Fm}\n${Fm}R: ${Fm}"
       read inicio
     else
       ghost_fun $dig
@@ -355,9 +356,9 @@ MenuNmap_func() {
 
 airmonstop_func() {
 
-  echo -e ${Vd}"DESABILITANDO A PLACA DE REDE DO MODO ${LAN}"${Fm}
+  echo -e ${Vd}"DESABILITANDO A PLACA DE REDE DO MODO ${LAN}mon"${Fm}
   sleep 2s
-  sudo airmon-ng stop ${LAN}
+  sudo airmon-ng stop ${LAN}mon
   thanks_func
 }
 
@@ -370,8 +371,6 @@ airmon_func() {
   echo -e ${Rd}"COLOCANDO A PLACA WIFI EM MODO MONITOR"${Fm}
   sleep 3s
   sudo airmon-ng start ${LAN} && clear
-  echo -e ${Rd}"EFETUANDO UM KILL EM PROCESSOS EXISTENTES"${Fm}
-  sudo airmon-ng check kill && sleep 2s && clear
   echo -e ${Rd}"OBTENDO REDES WIFI DISPONIVEIS, O PROCESSO LEVARÁ 30 SEGUNDOS\n"${Fm}
   sleep 2s
   sudo timeout --preserve-status 30 wash -i ${LAN}mon 
@@ -393,7 +392,7 @@ bully_func() {
 reaver_func() {
 
   airmon_func
-  reaver -c$canal -b$mac -vv -i ${LAN}mon -K 1
+  reaver -c$canal -b$mac -vv -i ${LAN}mon -L -Z -K 1
   echo -e ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
 
@@ -425,7 +424,8 @@ MenuWificrack_func() {
     read -p $'\033[37;1mR: \033[m' dig
 
     if [[ "$dig" =~ ^[[:alpha:]] ]]; then
-      echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!\nSÓ É ACEITO NÚMEROS!\n\n${Br}RETORNAR AO REAVER?${Fm} ${Rd}[${Fm}${Br}S/N${Rd}]${Fm}\n${Fm}R: ${Fm}"
+      echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!\nSÓ É ACEITO NÚMEROS!\n\n${Br}RETORNAR AO WIFICRACK?${Fm} \
+      ${Rd}[${Fm}${Br}S/N${Rd}]${Fm}\n${Fm}R: ${Fm}"
       read inicio
     else
       case $dig in
@@ -466,7 +466,8 @@ Menu() {
     read -p $'\033[37;1mR: \033[m' dig
 
     if [[ "$dig" =~ ^[[:alpha:]] ]]; then
-      echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!\nSÓ É ACEITO NÚMEROS!\n\n${Br}RETORNAR AO INICIO?${Fm} ${Rd}[${Fm}${Br}S/N${Rd}]${Fm}\n${Fm}R: ${Fm}"
+      echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!\nSÓ É ACEITO NÚMEROS!\n\n${Br}RETORNAR AO INICIO?${Fm} \
+      ${Rd}[${Fm}${Br}S/N${Rd}]${Fm}\n${Fm}R: ${Fm}"
       read inicio
     else
       case $dig in
