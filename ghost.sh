@@ -70,11 +70,10 @@ Vd="\033[32;1m"
 Cy="\033[0;36m"
 Fm="\e[0m"
 
-
 #===============================================================#
 # Verifica se o usuário está logado como root
 #===============================================================#
-checkroot_func () {
+checkroot_func() {
 
   clear
 
@@ -90,7 +89,7 @@ checkroot_func () {
 #=================================================================#
 # Verifica se existem dependências, e instalando-as se nescessário
 #=================================================================#
-checkdependencias () {
+checkdependencias() {
 
   deps=("nmap" "ipcalc" "net-tools" "git" "pixiewps"
   "build-essential" "libpcap-dev" "aircrack-ng" "reaver")
@@ -99,13 +98,9 @@ checkdependencias () {
 
   for d in "${!deps[@]}"; do
 
-    [[ -z $(command -v "${deps[$d]}") ]] && [[ -z $(sudo dpkg -l "${deps[$d]}") ]] \
-    && missing+=(${deps[$d]})
+    [[ -z $(sudo dpkg -l "${deps[$d]}" 2> /dev/null) ]] && missing+=(${deps[$d]})
 
-  done
-
-  [[ ! -d ~/GHOST/bully/ ]] && git clone https://github.com/aanarchyy/bully 2> /dev/null \
-  && cd bully*/ && cd src/ && make && sudo make install 
+  done 
 
   if [[ ${#missing[@]} -ne 0 ]]; then
     echo -e ${Rd}"\nFALTAM AS DEPENDÊNCIAS:${Fm}${Cy} ${missing[@]}"${Fm}
@@ -128,19 +123,19 @@ checkdependencias () {
   fi
 }
 
-retorno_func () {
+retorno_func() {
 
   echo -e ${Rd}"\nRETORNANDO..."${Fm}
   sleep 2s && Menu
 }
 
-thanks_func () {
+thanks_func() {
 
     echo -e ${Rd}"\nSAINDO...${Vd}\n\nOBRIGADO POR USAR O GHOST..."${Fm}
     sleep 2s && clear && exit
 }
 
-exit_func () {
+exit_func() {
 
   if [[ -e ghost-log.txt ]]; then
     echo -e ${Rd}"\nEXCLUIR O ARQUIVO ${Cy}ghost-log.txt${Fm}${Rd}?${Fm}${Rd} [${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
@@ -155,14 +150,14 @@ exit_func () {
   fi
 }
 
-optionexit_func () {
+optionexit_func() {
 
   echo -e ${Rd}"\nDESEJA SAIR DO GHOST?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
   [[ "$RES" == @(n|N) ]] && retorno_func || exit_func
 }
 
-open_log () {
+open_log() {
 
   tput cnorm -- normal
   echo -ne "\n${Rd}ABRIR O ARQUIVO${Fm}${Cy} ghost-log.txt?${Fm} ${Rd}[${Fm}${Br}S/N${Rd}]${Fm}\n${Fm}R: ${Fm}"
@@ -176,7 +171,7 @@ open_log () {
   [[ "$RES" == @(s|S) ]] && retorno_func || exit_func
 }
 
-nmap_func () {
+nmap_func() {
 
   case $dig in
     1) nmap -f -sS -vv -T4 -Pn $IP | grep "Discovered open port" 2>&- ;;
@@ -194,7 +189,7 @@ nmap_func () {
   esac
 }
 
-nmap_scanner () {
+nmap_scanner() {
 
   clear
 
@@ -212,7 +207,7 @@ nmap_scanner () {
 
 }
 
-mask_func () {
+mask_func() {
 
   mask=$(ipcalc --class $ip)
 
@@ -229,7 +224,7 @@ mask_func () {
   open_log
 }
 
-full_range () {
+full_range() {
 
   IFS='.' read C1 C2 C3 C4 <<< $ip
 
@@ -244,7 +239,7 @@ full_range () {
   done
 }
 
-ip_func () {
+ip_func() {
 
   [[ $dig -eq 4 ]] && read -p $'\033[1;31m\nDIGITE A PORTA OU PORTAS. Ex: 22 ou 22,80,443\nR: \033[m' port
   read -p $'\033[1;31m\nDIGITE SOMENTE O IP, OU URL.\nR: \033[m' dns
@@ -262,7 +257,7 @@ ip_func () {
   fi
 }
 
-rede_func () {
+rede_func() {
 
   read -p $'\033[1;31m\nDIGITE O IP OU URL.\nR: \033[m' dns
   
@@ -292,7 +287,7 @@ rede_func () {
   fi
 }
 
-ghost_fun () {
+ghost_fun() {
 
   case $dig in
 
@@ -310,7 +305,7 @@ ghost_fun () {
   esac
 }
 
-MenuNmap_func () {
+MenuNmap_func() {
 
   clear
 
@@ -358,7 +353,7 @@ MenuNmap_func () {
 
 }
 
-airmonstop_func () {
+airmonstop_func() {
 
   echo -e ${Vd}"DESABILITANDO A PLACA DE REDE DO MODO ${LAN}"${Fm}
   sleep 2s
@@ -366,7 +361,7 @@ airmonstop_func () {
   thanks_func
 }
 
-airmon_func () {
+airmon_func() {
 
   clear
 
@@ -385,7 +380,7 @@ airmon_func () {
   echo -e ${Cy}"\nESTE PROCESSO PODE DEMORAR VÁRIOS MINUTOS\nAGUARDE O FIM DO PROCESSO...\n"${Fm}
 }
 
-bully_func () {
+bully_func() {
 
   airmon_func
   bully ${LAN}mon -b$mac -c$canal -d -A -F -B -l 5
@@ -395,7 +390,7 @@ bully_func () {
   [[ "$RES" == @(s|S) ]] && retorno_func || airmonstop_func ${LAN}
 }
 
-reaver_func () {
+reaver_func() {
 
   airmon_func
   reaver -c$canal -b$mac -vv -i ${LAN}mon -K 1
@@ -405,7 +400,7 @@ reaver_func () {
   [[ "$RES" == @(s|S) ]] && retorno_func || airmonstop_func ${LAN}
 }
 
-MenuWificrack_func () {
+MenuWificrack_func() {
 
   clear
 
@@ -445,7 +440,7 @@ MenuWificrack_func () {
 
 }
 
-Menu () {
+Menu() {
 
   clear
 
