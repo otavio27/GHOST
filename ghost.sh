@@ -70,6 +70,30 @@ Vd="\033[32;1m"
 Cy="\033[0;36m"
 Fm="\e[0m"
 
+readonly LOGO=(
+"  ██████╗ ██╗  ██╗ ██████╗ ███████╗████████╗"
+" ██╔════╝ ██║  ██║██╔═══██╗██╔════╝╚══██╔══╝"
+" ██║  ███╗███████║██║   ██║███████╗   ██║"
+" ██║   ██║██╔══██║██║   ██║╚════██║   ██║"
+" ╚██████╔╝██║  ██║╚██████╔╝███████║   ██║"
+"  ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝")
+
+readonly LOGO1=(
+"██╗    ██╗██╗███████╗██╗ ██████╗██████╗  █████╗  ██████╗██╗  ██╗"
+"██║    ██║██║██╔════╝██║██╔════╝██╔══██╗██╔══██╗██╔════╝██║ ██╔╝"
+"██║ █╗ ██║██║█████╗  ██║██║     ██████╔╝███████║██║     █████╔╝"
+"██║███╗██║██║██╔══╝  ██║██║     ██╔══██╗██╔══██║██║     ██╔═██╗"
+"╚███╔███╔╝██║██║     ██║╚██████╗██║  ██║██║  ██║╚██████╗██║  ██╗"
+" ╚══╝╚══╝ ╚═╝╚═╝     ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝")
+
+readonly LOGO2=(
+"███╗   ██╗███╗   ███╗ █████╗ ██████╗"
+"████╗  ██║████╗ ████║██╔══██╗██╔══██╗"
+"██╔██╗ ██║██╔████╔██║███████║██████╔╝"
+"██║╚██╗██║██║╚██╔╝██║██╔══██║██╔═══╝"
+"██║ ╚████║██║ ╚═╝ ██║██║  ██║██║"     
+"╚═╝  ╚═══╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝")
+
 #===============================================================#
 # Verifica se o usuário está logado como root
 #===============================================================#
@@ -228,7 +252,7 @@ mask_func() {
 full_range() {
 
   IFS='.' read C1 C2 C3 C4 <<< $ip
-
+  
   while : ; do 
 
     for X in {1..255}; do IP=$"$C1.${C2//*/$X}.${C3//*/0}.${C4//*/1}"; nmap_scanner $IP continue; done
@@ -309,19 +333,16 @@ ghost_fun() {
 MenuNmap_func() {
 
   clear
-
   while true; do
 
-    echo -e ${Rd}"=============================================================================="${Fm}
-    echo -e ""
-    echo -e ${Vd}"                    ███╗   ██╗███╗   ███╗ █████╗ ██████╗"${Fm} 
-    echo -e ${Vd}"                    ████╗  ██║████╗ ████║██╔══██╗██╔══██╗"${Fm}
-    echo -e ${Vd}"                    ██╔██╗ ██║██╔████╔██║███████║██████╔╝"${Fm}
-    echo -e ${Vd}"                    ██║╚██╗██║██║╚██╔╝██║██╔══██║██╔═══╝"${Fm} 
-    echo -e ${Vd}"                    ██║ ╚████║██║ ╚═╝ ██║██║  ██║██║"${Fm}     
-    echo -e ${Vd}"                    ╚═╝  ╚═══╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝"${Fm}     
-    echo -e ""
-    echo -e ${Rd}"=============================================================================="${Fm}
+    echo -e ${Rd}"==============================================================================\n"${Fm}
+    
+    for X in "${!LOGO2[@]}"; do
+      echo -e ${Vd}"\t\t\t${LOGO2[$X]}"${Fm}
+      sleep 0.1s
+    done
+
+    echo -e ${Rd}"\n=============================================================================="${Fm}
     echo -e ${Rd}" [0]"${Fm}${Br}" Para sair"${Fm}
     echo -e ${Rd}" [1]"${Fm}${Br}" Informações somente de portas abertas"${Fm}
     echo -e ${Rd}" [2]"${Fm}${Br}" Informações de qual Sistema Operacional"${Fm}
@@ -359,7 +380,7 @@ airmonstop_func() {
 
   echo -e ${Vd}"DESABILITANDO A PLACA DE REDE DO MODO MONITOR"${Fm}
   sleep 2s
-  sudo airmon-ng stop ${LAN%:*}mon
+  sudo airmon-ng stop ${LAN[$P]%%:*}mon
   thanks_func
 }
 
@@ -367,14 +388,26 @@ airmon_func() {
 
   clear
 
-  LAN=$(ip a | grep 'wl' | awk '{print $2}')
+  LAN=($(sudo ifconfig | grep 'wl' | awk '{print $1}'))
 
-  echo -e ${Rd}"COLOCANDO A PLACA WIFI EM MODO MONITOR"${Fm}
+  echo -e ${Rd}"\nBUSCANDO PLACAS DE REDE WIRELESS..."${Fm}
   sleep 3s
-  sudo airmon-ng start ${LAN%:*} && clear
+  echo -e ${Rd}"\nPLACAS DE REDE WIRELESS DISPONÍVEIS:\n"${Fm}
+
+  for X in "${!LAN[@]}"; do
+
+    echo -e ${Rd}"[$X]${Fm} ${Vd}${LAN[$X]%%:*}"${Fm}
+
+  done
+
+  read -p $'\033[31;1m\nDIGITE O NÚMERO DA PLACA ESCOLHIDA R: \033[m' P
+
+  echo -e ${Rd}"\nCOLOCANDO A PLACA WIFI EM MODO MONITOR"${Fm}
+  sleep 3s
+  sudo airmon-ng start ${LAN[$P]%%:*} && clear
   echo -e ${Rd}"OBTENDO REDES WIFI DISPONIVEIS, O PROCESSO LEVARÁ 30 SEGUNDOS\n"${Fm}
   sleep 2s
-  sudo timeout --preserve-status 30 wash -i ${LAN%:*}mon 
+  sudo timeout --preserve-status 30 wash -i  ${LAN[$P]%%:*}mon 
   read -p $'\033[31;1m\nCOPIE E COLE O MAC DA REDE ESCOLHIDA R: \033[m' mac
   read -p $'\033[31;1m\nDIGITE O CANAL QUE CORRESPONDE AO MAC DA REDE ESCOLHIDA R: \033[m' canal
   echo -e ${Cy}"\nESTE PROCESSO PODE DEMORAR VÁRIOS MINUTOS\nAGUARDE O FIM DO PROCESSO...\n"${Fm}
@@ -383,39 +416,36 @@ airmon_func() {
 bully_func() {
 
   airmon_func
-  bully ${LAN%:*}mon -b$mac -c$canal -d -A -F -B -l 5
+  bully ${LAN[$P]%%:*}mon -b$mac -c$canal -d -A -F -B -l 5
   echo -e ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
 
-  [[ "$RES" == @(s|S) ]] && retorno_func || airmonstop_func ${LAN%:*}
+  [[ "$RES" == @(s|S) ]] && retorno_func || airmonstop_func ${wlan}
 }
 
 reaver_func() {
 
   airmon_func
-  reaver -c$canal -b$mac -vv -i ${LAN%:*}mon -L -Z -K 1
+  reaver -c$canal -b$mac -vv -i ${LAN[$P]%%:*}mon -L -Z -K 1
   echo -e ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
 
-  [[ "$RES" == @(s|S) ]] && retorno_func || airmonstop_func ${LAN%:*}
+  [[ "$RES" == @(s|S) ]] && retorno_func || airmonstop_func ${wlan}
 }
 
 MenuWificrack_func() {
 
   clear
-
   while true; do
   
-    echo -e ${Rd}"=============================================================================="${Fm}
-    echo -e ""
-    echo -e ${Cy}"      ██╗    ██╗██╗███████╗██╗ ██████╗██████╗  █████╗  ██████╗██╗  ██╗"${Fm}
-    echo -e ${Cy}"      ██║    ██║██║██╔════╝██║██╔════╝██╔══██╗██╔══██╗██╔════╝██║ ██╔╝"${Fm}
-    echo -e ${Cy}"      ██║ █╗ ██║██║█████╗  ██║██║     ██████╔╝███████║██║     █████╔╝"${Fm}
-    echo -e ${Cy}"      ██║███╗██║██║██╔══╝  ██║██║     ██╔══██╗██╔══██║██║     ██╔═██╗"${Fm}
-    echo -e ${Cy}"      ╚███╔███╔╝██║██║     ██║╚██████╗██║  ██║██║  ██║╚██████╗██║  ██╗"${Fm}
-    echo -e ${Cy}"      ╚══╝╚══╝ ╚═╝╚═╝     ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝"${Fm}
-    echo -e ""                                                            
-    echo -e ${Rd}"=============================================================================="${Fm}
+    echo -e ${Rd}"==============================================================================\n"${Fm}
+
+    for X in "${!LOGO1[@]}"; do
+      echo -e ${Cy}"\t${LOGO1[$X]}"${Fm}
+      sleep 0.1s
+    done
+
+    echo -e ${Rd}"\n=============================================================================="${Fm}
     echo -e ${Rd}" [0]"${Fm}${Br}" Para sair"${Fm}
     echo -e ${Rd}" [1]"${Fm}${Br}" Quebra do PIN WPS com REAVER"${Fm}
     echo -e ${Rd}" [2]"${Fm}${Br}" Quebra do PIN WPS com BULLY"${Fm} 
@@ -444,23 +474,21 @@ MenuWificrack_func() {
 Menu() {
 
   clear
-
   while true; do
 
-    sleep 0.05; echo -e ${Rd}"=============================================================================="${Fm}
-    sleep 0.05; echo -e ${Bd}""
-    sleep 0.05; echo -e ${Rd}"                 ██████╗ ██╗  ██╗ ██████╗ ███████╗████████╗"${Fm}
-    sleep 0.05; echo -e ${Rd}"                ██╔════╝ ██║  ██║██╔═══██╗██╔════╝╚══██╔══╝"${Fm}
-    sleep 0.05; echo -e ${Rd}"                ██║  ███╗███████║██║   ██║███████╗   ██║"${Fm}
-    sleep 0.05; echo -e ${Rd}"                ██║   ██║██╔══██║██║   ██║╚════██║   ██║"${Fm}
-    sleep 0.05; echo -e ${Rd}"                ╚██████╔╝██║  ██║╚██████╔╝███████║   ██║"${Fm}
-    sleep 0.05; echo -e ${Rd}"                 ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝"${Fm}
-    sleep 0.05; echo -e ${Cy}"                               ${version}"${Fm}
-    sleep 0.05; echo -e ${Rd}"=============================================================================="${Fm}
-    sleep 0.05; echo -e ${Rd}" [0]"${Fm}${Br}" Para sair"${Fm}
-    sleep 0.05; echo -e ${Rd}" [1]"${Fm}${Br}" Scanner usando o nmap"${Fm}
-    sleep 0.05; echo -e ${Rd}" [2]"${Fm}${Br}" Quebra de senha wifi com WifiCrack"${Fm}
-    sleep 0.05; echo -e ${Rd}"=============================================================================="${Fm}
+    echo -e ${Rd}"==============================================================================\n"${Fm}
+
+    for X in "${!LOGO[@]}"; do
+      echo -e ${Rd}"\t\t${LOGO[$X]}"${Fm}
+      sleep 0.1s
+    done
+
+    echo -e ${Cy}"                               ${version}"${Fm}
+    echo -e ${Rd}"=============================================================================="${Fm}
+    echo -e ${Rd}" [0]"${Fm}${Br}" Para sair"${Fm}
+    echo -e ${Rd}" [1]"${Fm}${Br}" Scanner usando o nmap"${Fm}
+    echo -e ${Rd}" [2]"${Fm}${Br}" Quebra de senha wifi com WifiCrack"${Fm}
+    echo -e ${Rd}"=============================================================================="${Fm}
 
     echo -e ${Red}"ESCOLHA UMA DAS OPÇÕES DO MENU ACIMA"${Fm}
 
