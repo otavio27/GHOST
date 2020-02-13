@@ -344,11 +344,10 @@ MenuNmap_func() {
       echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!\nSÓ É ACEITO NÚMEROS!\n\n${Br}RETORNAR AO NMAP?${Fm} \
       ${Rd}[${Fm}${Br}S/N${Rd}]${Fm}\n${Fm}R: ${Fm}"
       read inicio
+      [[ "${inicio,,}" == @(s|sim) ]] && MenuNmap_func || exit_func
     else
       ghost_fun $dig
     fi
-
-    [[ "${inicio,,}" == @(s|sim) ]] && MenuNmap_func || exit_func
 
   done
 
@@ -443,14 +442,14 @@ MenuWificrack_func() {
       echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!\nSÓ É ACEITO NÚMEROS!\n\n${Br}RETORNAR AO WIFICRACK?${Fm} \
       ${Rd}[${Fm}${Br}S/N${Rd}]${Fm}\n${Fm}R: ${Fm}"
       read inicio
+      [[ "${inicio,,}" == @(s|sim) ]] && MenuWificrack_func || exit_func
     else
       case $dig in
+        0) exit_func ;;
         1) reaver_func ;;
         2) bully_func ;;
       esac
     fi
-
-    [[ "${inicio,,}" == @(s|sim) ]] && MenuWificrack_func || exit_func
   
   done
 }
@@ -482,6 +481,7 @@ Menu() {
       echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!\nSÓ É ACEITO NÚMEROS!\n\n${Br}RETORNAR AO INICIO?${Fm} \
       ${Rd}[${Fm}${Br}S/N${Rd}]${Fm}\n${Fm}R: ${Fm}"
       read inicio
+      [[ "${inicio,,}" == @(s|sim) ]] && retorno_func || exit_func
     else
       case $dig in
         0) exit_func ;;
@@ -489,8 +489,6 @@ Menu() {
         2) MenuWificrack_func ;;
       esac
     fi
-
-    [[ "${inicio,,}" == @(s|sim) ]] && retorno_func || exit_func
 
   done
 }
