@@ -72,6 +72,21 @@ Fm="\e[0m"
 
 source logos.sh
 
+readonly nmapwrite=(
+"Para sair"
+"Informações somente de portas abertas"
+"Informações de qual Sistema Operacional"
+"Informações do sistema Operacional, versões dos serviços e portas"
+"Informações somente de uma porta, ou portas em específico"
+"Bruteforce MYSQL? Use com responsabilidade!!!"
+"Detectar falhas em servidores, saída do tipo verbose -v"
+"Realizar pesquisas sobre alvos"
+"Buscar falhas de DDoS"
+"Scan de firewall com fragmentos de pacotes"
+"Scan de firewall com MAC spoofing"
+"Scan de host utilizando serviços UDP"
+"Scan decoys (camufla o ip)")
+
 #===============================================================#
 # Verifica se o usuário está logado como root
 #===============================================================#
@@ -134,8 +149,8 @@ retorno_func() {
 
 thanks_func() {
 
-    echo -e ${Rd}"\nSAINDO...${Vd}\n\nOBRIGADO POR USAR O GHOST..."${Fm}
-    sleep 2s && clear && exit
+  echo -e ${Rd}"\nSAINDO...${Vd}\n\nOBRIGADO POR USAR O GHOST..."${Fm}
+  sleep 2s && clear && exit
 }
 
 exit_func() {
@@ -165,12 +180,9 @@ open_log() {
   tput cnorm -- normal
   echo -ne "\n${Rd}ABRIR O ARQUIVO${Fm}${Cy} ghost-log.txt?${Fm} ${Rd}[${Fm}${Br}S/N${Rd}]${Fm}\n${Fm}R: ${Fm}"
   read RES
-
   [[ "${RES,,}" == @(s|sim) ]] && cat ghost-log.txt || retorno_func
-
   echo -e ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
-
   [[ "$RES" == @(s|S) ]] && retorno_func || exit_func
 }
 
@@ -195,7 +207,6 @@ nmap_func() {
 nmap_scanner() {
 
   clear
-
   tput civis -- invisible
 
   echo -e ${Rd}"\n========================[${Fm}${Br}GHOST${Fm}${Rd}]======================="${Fm}
@@ -263,7 +274,6 @@ ip_func() {
 rede_func() {
 
   read -p $'\033[1;31m\nDIGITE O IP OU URL.\nR: \033[m' dns
-  
   [[ $dig -eq 4 ]] && read -p $'\033[1;31m\nDIGITE A PORTA OU PORTAS. Ex: 22 ou 22,80,443\nR: \033[m' port
 
   if [[ "$dns" =~ ^[[:alpha:]] ]]; then
@@ -299,7 +309,6 @@ ghost_fun() {
       echo -e ${Rd}"\nESCANEAR IP OU REDE?${Fm}${Br} [I/R]"${Fm}
       echo -e ${Rd}"\nTODAS AS SAÍDAS SERÃO DIRECIONADAS PARA O ARQUIVO:${Fm}${Cy} ghost-log.txt"${Fm}
       read -p $'\033[1;37mR: \033[m' RES
-
       [[ "$RES" == @(i|I) ]] && ip_func $dig || [[ "$RES" == @(r|R) ]] && rede_func $dig || optionexit_func ;;
 
     0) exit_func ;;
@@ -315,25 +324,18 @@ MenuNmap_func() {
 
     echo -e ${Rd}"==============================================================================\n"${Fm}
     
-    for X in "${!LOGO2[@]}"; do
-      echo -e ${Vd}"\t\t\t${LOGO2[$X]}"${Fm}
+    for X in "${!NMAP[@]}"; do
+      echo -e ${Vd}"\t\t\t${NMAP[$X]}"${Fm}
       sleep 0.1s
     done
 
     echo -e ${Rd}"\n=============================================================================="${Fm}
-    echo -e ${Rd}" [0]"${Fm}${Br}" Para sair"${Fm}
-    echo -e ${Rd}" [1]"${Fm}${Br}" Informações somente de portas abertas"${Fm}
-    echo -e ${Rd}" [2]"${Fm}${Br}" Informações de qual Sistema Operacional"${Fm}
-    echo -e ${Rd}" [3]"${Fm}${Br}" Informações do sistema Operacional, versões dos serviços e portas"${Fm}
-    echo -e ${Rd}" [4]"${Fm}${Br}" Informações somente de uma porta, ou portas em específico"${Fm}
-    echo -e ${Rd}" [5]"${Fm}${Br}" Bruteforce MYSQL? Use com responsabilidade!!!"${Fm}
-    echo -e ${Rd}" [6]"${Fm}${Br}" Detectar falhas em servidores, saída do tipo verbose -v"${Fm}
-    echo -e ${Rd}" [7]"${Fm}${Br}" Realizar pesquisas sobre alvos"${Fm}
-    echo -e ${Rd}" [8]"${Fm}${Br}" Buscar falhas de DDoS"${Fm}
-    echo -e ${Rd}" [9]"${Fm}${Br}" Scan de firewall com fragmentos de pacotes"${Fm}
-    echo -e ${Rd}" [10]"${Fm}${Br}" Scan de firewall com MAC spoofing"${Fm}
-    echo -e ${Rd}" [11]"${Fm}${Br}" Scan de host utilizando serviços UDP"${Fm}
-    echo -e ${Rd}" [12]"${Fm}${Br}" Scan decoys (camufla o ip)"${Fm}
+    
+    for N in "${!nmapwrite[@]}"; do
+      echo -e ${Rd}" [$N]"${Fm} ${Br}"${nmapwrite[$N]}"${Fm}
+      sleep 0.05s
+    done
+    
     echo -e ${Rd}"=============================================================================="${Fm}
 
     echo -e ${Red}"ESCOLHA UMA DAS OPÇÕES DO MENU ACIMA"${Fm}
@@ -342,7 +344,7 @@ MenuNmap_func() {
 
     if [[ "$dig" =~ ^[[:alpha:]] ]]; then
       echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!\nSÓ É ACEITO NÚMEROS!\n\n${Br}RETORNAR AO NMAP?${Fm} \
-      ${Rd}[${Fm}${Br}S/N${Rd}]${Fm}\n${Fm}R: ${Fm}"
+      ${Rd}[${Fm}${Br}S/N${Fm}${Rd}]\n${Fm}R: ${Fm}"
       read inicio
       [[ "${inicio,,}" == @(s|sim) ]] && MenuNmap_func || exit_func
     else
@@ -364,7 +366,6 @@ airmonstop_func() {
 airmon_func() {
 
   clear
-
   LAN=($(sudo ifconfig | grep 'wl' | awk '{print $1}'))
 
   echo -e ${Rd}"\nBUSCANDO PLACAS DE REDE WIRELESS..."${Fm}
@@ -402,7 +403,6 @@ bully_func() {
   bully ${LAN[$P]%%:*}mon -b$mac -c$canal -d -A -F -B -l 5
   echo -e ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
-
   [[ "$RES" == @(s|S) ]] && retorno_func || airmonstop_func ${LAN[$P]%%*}mon
 }
 
@@ -413,7 +413,6 @@ reaver_func() {
   reaver -c$canal -b$mac -vv -i ${LAN[$P]%%:*}mon -L -Z -K 1
   echo -e ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
-
   [[ "$RES" == @(s|S) ]] && retorno_func || airmonstop_func ${LAN[$P]%%:*}mon
 }
 
@@ -424,8 +423,8 @@ MenuWificrack_func() {
   
     echo -e ${Rd}"==============================================================================\n"${Fm}
 
-    for X in "${!LOGO1[@]}"; do
-      echo -e ${Cy}"\t${LOGO1[$X]}"${Fm}
+    for X in "${!WIFI[@]}"; do
+      echo -e ${Cy}"\t${WIFI[$X]}"${Fm}
       sleep 0.1s
     done
 
@@ -440,7 +439,7 @@ MenuWificrack_func() {
 
     if [[ "$dig" =~ ^[[:alpha:]] ]]; then
       echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!\nSÓ É ACEITO NÚMEROS!\n\n${Br}RETORNAR AO WIFICRACK?${Fm} \
-      ${Rd}[${Fm}${Br}S/N${Rd}]${Fm}\n${Fm}R: ${Fm}"
+      ${Rd}[${Fm}${Br}S/N${Fm}${Rd}]\n${Fm}R: ${Fm}"
       read inicio
       [[ "${inicio,,}" == @(s|sim) ]] && MenuWificrack_func || exit_func
     else
@@ -461,8 +460,8 @@ Menu() {
 
     echo -e ${Rd}"==============================================================================\n"${Fm}
 
-    for X in "${!LOGO[@]}"; do
-      echo -e ${Rd}"\t\t${LOGO[$X]}"${Fm}
+    for X in "${!GHOST[@]}"; do
+      echo -e ${Rd}"\t\t${GHOST[$X]}"${Fm}
       sleep 0.1s
     done
 
@@ -479,7 +478,7 @@ Menu() {
 
     if [[ "$dig" =~ ^[[:alpha:]] ]]; then
       echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!\nSÓ É ACEITO NÚMEROS!\n\n${Br}RETORNAR AO INICIO?${Fm} \
-      ${Rd}[${Fm}${Br}S/N${Rd}]${Fm}\n${Fm}R: ${Fm}"
+      ${Rd}[${Fm}${Br}S/N${Fm}${Rd}]\n${Fm}R: ${Fm}"
       read inicio
       [[ "${inicio,,}" == @(s|sim) ]] && retorno_func || exit_func
     else
