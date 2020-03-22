@@ -9,7 +9,7 @@
 #===============================================================#
 # Autor: Otávio Will
 # Email: <otaviowill81@gmail.com>
-# Versão: 2.1
+# Versão: 2.5
 #===============================================================#
 
 #=======================================================================================#
@@ -249,7 +249,6 @@ full_range() {
     for Z in {1..255}; do IP=$"$C1.${C2//*/$X}.${C3//*/$Y}.${C4//*/$Z}"; nmap_scanner $IP continue; done
     
     break
-
   done
 }
 
@@ -278,9 +277,9 @@ rede_func() {
 
   if [[ "$dns" =~ ^[[:alpha:]] ]]; then
     read _ _ _ ip <<< $( host $dns | grep "address" ) # Converte toda a URL passada, em IP
-    read -p $'\033[1;31m\nESCANEAR EM MODO FULL-RANGE?\nESTE MODO FAZ UM SCANNER DO XXX.0.0.0 ATÉ XXX.255.255.255\nR: \033[m' RES
+    read -p $'\033[1;31m\nESCANEAR EM MODO FULL-RANGE?\nESTE MODO FAZ UM SCANNER DO XXX.0.0.1 ATÉ XXX.255.255.255\nR: \033[m' RES
     if [[ "${RES,,}" == @(s|sim) ]]; then
-      full_range 
+      full_range && open_log
     else
       mask_func 
     fi
@@ -288,15 +287,15 @@ rede_func() {
     # Tomada de decisão com responsabilidade de validação de IP
     if [[ $dns =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
       ip="$dns" 
-      read -p $'\033[1;31m\nESCANEAR EM MODO FULL-RANGE?\nESTE MODO FAZ UM SCANNER DO XXX.0.0.0 ATÉ XXX.255.255.255.\nR: \033[m' RES
+      read -p $'\033[1;31m\nESCANEAR EM MODO FULL-RANGE?\nESTE MODO FAZ UM SCANNER DO XXX.0.0.1 ATÉ XXX.255.255.255.\nR: \033[m' RES
       if [[ "${RES,,}" == @(s|sim) ]]; then
-        full_range 
+        full_range && open_log
       else
         mask_func
       fi
     else
-        echo -e ${Rd}"\nO [ ${Fm}${Br}${dns}${Fm}${Rd} ] É UM IP INVÁLIDO!!!"${Fm} && rede_func
-      fi
+      echo -e ${Rd}"\nO [ ${Fm}${Br}${dns}${Fm}${Rd} ] É UM IP INVÁLIDO!!!"${Fm} && rede_func
+    fi
   fi
 }
 
@@ -350,7 +349,6 @@ MenuNmap_func() {
     else
       ghost_fun $dig
     fi
-
   done
 
 }
@@ -449,7 +447,6 @@ MenuWificrack_func() {
         2) bully_func ;;
       esac
     fi
-  
   done
 }
 
@@ -488,7 +485,6 @@ Menu() {
         2) MenuWificrack_func ;;
       esac
     fi
-
   done
 }
 checkroot_func
