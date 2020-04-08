@@ -110,7 +110,7 @@ checkroot_func() {
 checkdependencias() {
 
   deps=("nmap" "ipcalc" "net-tools" "git" "pixiewps"
-  "build-essential" "libpcap-dev" "aircrack-ng" "reaver")
+  "build-essential" "libpcap-dev" "aircrack-ng" "reaver" "ethtool")
 
   declare -a missing
 
@@ -143,8 +143,14 @@ checkdependencias() {
 
 retorno_func() {
 
-  echo -e ${Rd}"\nRETORNANDO..."${Fm}
-  sleep 2s && Menu
+  echo -e ${Rd}"\nRETORNAR PARA: NMAP${Fm}${Br} [N]${Fm}${Rd} WIFICRACK${Fm}${Br} [W]${Fm}"
+  read -p $'\033[1;37mR: \033[m' RES
+  if [[ "${RES^^}" = "N" ]]; then
+    LAN=($(sudo ifconfig | grep 'wl' | awk '{print $1}'))    
+    sudo airmon-ng stop ${LAN%%:*} > /dev/null
+    echo -e ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuNmap_func
+  fi 
+  [[ "${RES^^}" = "W" ]] && echo -e ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuWificrack_func
 }
 
 thanks_func() {
@@ -367,7 +373,7 @@ airmon_func() {
   LAN=($(sudo ifconfig | grep 'wl' | awk '{print $1}'))
 
   echo -e ${Rd}"\nBUSCANDO PLACAS DE REDE WIRELESS..."${Fm}
-  sleep 3s
+  sleep 2s
   echo -e ${Rd}"\nPLACAS DE REDE WIRELESS DISPONÍVEIS:\n"${Fm}
 
   for X in "${!LAN[@]}"; do
@@ -379,8 +385,8 @@ airmon_func() {
   read -p $'\033[31;1m\nDIGITE O NÚMERO DA PLACA ESCOLHIDA R: \033[m' P
 
   echo -e ${Rd}"\nCOLOCANDO A PLACA WIFI EM MODO MONITOR"${Fm}
-  sleep 3s
-  sudo airmon-ng start ${LAN[$P]%%:*} && clear
+  sleep 2s
+  sudo airmon-ng start ${LAN[$P]%%:*} > /dev/null && clear
   echo -e ${Rd}"OBTENDO REDES WIFI DISPONIVEIS, O PROCESSO LEVARÁ 30 SEGUNDOS\n"${Fm}
 
 }
