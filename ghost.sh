@@ -5,53 +5,11 @@
 # Este programa usa de comandos específicos do Nmap para realizar
 # suas tarefas.
 #===============================================================#
-
 #===============================================================#
 # Autor: Otávio Will
-# Email: <otaviowill81@gmail.com>
-# Versão: 2.5
+# Email: <owtechdeveloper@gmail.com>
+# Versão: 2.7
 #===============================================================#
-
-#=======================================================================================#
-# Data: 24/11/2019
-# Implementações da versão 2.0
-#
-# Implementado a condição de instalar as dependências
-# sem precisar sair do programa. E também implementada a verificação
-# se exixte o arquivo.log antes de perguntar ao usuário se quer excluir.
-#
-# Foi alterado na função rede, a parte onde o usuário era obrigado a
-# digitar o IP sem o ultimo range. Dando agora a opção de digitar o IP
-# completo, sem haver preocupação do que se trata o termo "range".
-#
-# Implementado a validação do IP digitado, caso o usuário passe um IP
-# inválido, o programa informará sobre o ocorrido, e pedirá que passe
-# um IP válido novamete.
-#
-# Data: 09/12/2019
-# Implementações da versão 2.1
-# 
-# A função loop_func foi deletada e uma nova dependência inserida, "ipcalc".
-# Duas novas funções foram criadas.
-# A mask_func, e essa recebe a responsabilidade
-# de detectar qual mascara o IP se encontra.E assim facilatar o scanner
-# à detectar quais hosts estão ativos. E com isso, a saída do log.txt
-# fica mais limpa. 
-# A função full_range tem a finalidade de ser possivél escanear uma enorme gama de IP's.
-# Essa função é muito útil quando se precisa saber quais IP's tem uma determidana porta 
-# aberta. 
-#
-# Data: 05/02/2020
-# Implementações da versão 2.5
-#
-# Foi adicionado ao programa, funções que permitem a quebra de senhas wi-fi com reaver e 
-# bully. Sendo que a função bully, funciona com perfeição nas distribuições Kali Linux e 
-# WifiSlax.
-# Também foi separado os menús, cada um agora corresponde as suas funções. Sendo o menú 
-# principal para a escolha das ferramentas, e os submenús para a escolha das tarefas de
-# cada ferramenta.
-#=======================================================================================#
-
 #======================================================================#
 # Obs: Não foi comentado muitas linhas, pois o programa está modulado
 # por funções. E cada função recebeu o nome mais próximo do que ela é
@@ -59,7 +17,7 @@
 # ser procurado na respctiva função.
 #======================================================================#
 
-version="Versão: 2.5"
+version="Versão: 2.7"
 
 # Colors
 Br="\033[37;1m"
@@ -99,7 +57,7 @@ checkroot_func() {
     echo -e ${Red}"\nNÃO É POSSIVEL EXECUTAR SEM ESTAR COMO ROOT..."${Fm}
     sleep 2s && exit 1 
   else
-    echo -e ${Rd}"\n===[${Fm}${Br}STARTANDO O PROGRAMA AGUARDE!${Fm}${Rd}]==="${Fm}
+    echo -e ${Rd}"\n\t\t======[${Fm}${Br}STARTANDO O PROGRAMA AGUARDE!${Fm}${Rd}]======"${Fm}
     sleep 1s
   fi
 }
@@ -121,22 +79,22 @@ checkdependencias() {
   done 
 
   if [[ ${#missing[@]} -ne 0 ]]; then
-    echo -e ${Rd}"\nFALTAM AS DEPENDÊNCIAS:${Fm}${Cy} ${missing[@]}"${Fm}
-    read -p $'\033[1;31m\nINSTALAR AS DEPENDÊNCIAS?\nR: \033[m' RES
+    echo -e ${Rd}"\n\tFALTAM AS DEPENDÊNCIAS:${Fm}${Cy} ${missing[@]}"${Fm}
+    read -p $'\033[1;31m\n\t\tINSTALAR AS DEPENDÊNCIAS?\nR: \033[m' RES
 
     if [[ "${RES,,}" == @(s|sim) ]]; then
       sudo apt update && sudo apt install ${missing[@]} -y
-      echo -e ${Vd}"\nTODAS AS DEPENDÊNCIAS FORAM INSTALADAS"${Fm}
+      echo -e ${Vd}"\n\t\tTODAS AS DEPENDÊNCIAS FORAM INSTALADAS"${Fm}
       sleep 1s && retorno_func
     elif [[ "${RES,,}" == @(n|não) ]]; then
-      echo -e ${Rd}"\nNÃO É POSSÍVEL PROSSEGUIR SEM INSTALAR AS DEPENDÊNCIAS"${Fm}
+      echo -e ${Rd}"\n\t\tNÃO É POSSÍVEL PROSSEGUIR SEM INSTALAR AS DEPENDÊNCIAS"${Fm}
       sleep 3s && thanks_func
     else
-      echo -e ${Rd}"\nNÃO FOI POSSÍVEL INSTALAR AS DEPENDÊNCIAS ${missing[@]}"${Fm}
+      echo -e ${Rd}"\n\t\tNÃO FOI POSSÍVEL INSTALAR AS DEPENDÊNCIAS ${missing[@]}"${Fm}
     fi
 
   else
-    echo -e ${Vd}"\nNÃO HÁ DEPENDÊNCIAS A SEREM INSTALADAS"${Fm}
+    echo -e ${Vd}"\n\t\tNÃO HÁ DEPENDÊNCIAS A SEREM INSTALADAS"${Fm}
     sleep 1s
   fi
 }
@@ -387,16 +345,22 @@ airmon_func() {
   echo -e ${Rd}"\nCOLOCANDO A PLACA WIFI EM MODO MONITOR"${Fm}
   sleep 2s
   sudo airmon-ng start ${LAN[$P]%%:*} > /dev/null && clear
-  echo -e ${Rd}"OBTENDO REDES WIFI DISPONIVEIS, O PROCESSO LEVARÁ 30 SEGUNDOS\n"${Fm}
+  echo -e ${Rd}"OBTENDO REDES WIFI DISPONIVEIS, O PROCESSO LEVARÁ ALGUNS SEGUNDOS\n"${Fm}
 
 }
 
 wash_func() {
 
-  sleep 2s
-  sudo timeout --preserve-status 30 wash -i  ${LAN[$P]%%:*}mon 
-  read -p $'\033[31;1m\nCOPIE E COLE O MAC DA REDE ESCOLHIDA R: \033[m' mac
-  read -p $'\033[31;1m\nDIGITE O CANAL QUE CORRESPONDE AO MAC DA REDE ESCOLHIDA R: \033[m' canal
+  sudo timeout --preserve-status 30 wash -i ${LAN[$P]%%:*}mon | tee MACS.txt
+  MACS=($(cat MACS.txt | grep ':' | awk '{print $1" "$2}'))
+  
+  echo -e ${Rd}"\nESCOLHA UMA REDE PARA ATAQUE\n"${Fm}
+
+  for (( X = 0; X < ${#MACS[@]}; X = X + 2 )); do 
+    echo -e ${Rd}"[$X] MAC:${Fm} ${Vd}${MACS[$X]}"${Fm} 
+  done
+
+  read -p $'\033[31;1m\nDIGITE O ÍNDICE DA REDE ESCOLHIDA R: \033[m' I
   echo -e ${Cy}"\nESTE PROCESSO PODE DEMORAR VÁRIOS MINUTOS\nAGUARDE O FIM DO PROCESSO...\n"${Fm}
 }
 
@@ -404,7 +368,7 @@ bully_func() {
 
   airmon_func
   wash_func
-  bully ${LAN[$P]%%:*}mon -b$mac -c$canal -d -A -F -B -l 5
+  bully ${LAN[$P]%%:*}mon -b${MACS[$I]} -c${MACS[$I+1]} -d -A -F -B -l 5
   echo -e ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
   [[ "$RES" == @(s|S) ]] && retorno_func || airmonstop_func ${LAN[$P]%%*}mon
@@ -414,7 +378,7 @@ reaver_func() {
 
   airmon_func
   wash_func
-  reaver -c$canal -b$mac -vv -i ${LAN[$P]%%:*}mon -L -Z -K 1
+  reaver -c${MACS[$I+1]} -b${MACS[$I]} -vv -i ${LAN[$P]%%:*}mon -L -Z -K 1
   echo -e ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
   [[ "$RES" == @(s|S) ]] && retorno_func || airmonstop_func ${LAN[$P]%%:*}mon
