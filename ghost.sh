@@ -31,19 +31,19 @@ Fm="\e[0m"
 source logos.sh
 
 readonly nmapwrite=(
-"Para sair"
-"Informações somente de portas abertas"
-"Informações de qual Sistema Operacional"
-"Informações do sistema Operacional, versões dos serviços e portas"
-"Informações somente de uma porta, ou portas em específico"
-"Bruteforce MYSQL? Use com responsabilidade!!!"
-"Detectar falhas em servidores, saída do tipo verbose -v"
-"Realizar pesquisas sobre alvos"
-"Buscar falhas de DDoS"
-"Scan de firewall com fragmentos de pacotes"
-"Scan de firewall com MAC spoofing"
-"Scan de host utilizando serviços UDP"
-"Scan decoys (camufla o ip)")
+  "Para sair"
+  "Informações somente de portas abertas"
+  "Informações de qual Sistema Operacional"
+  "Informações do sistema Operacional, versões dos serviços e portas"
+  "Informações somente de uma porta, ou portas em específico"
+  "Bruteforce MYSQL? Use com responsabilidade!!!"
+  "Detectar falhas em servidores, saída do tipo verbose -v"
+  "Realizar pesquisas sobre alvos"
+  "Buscar falhas de DDoS"
+  "Scan de firewall com fragmentos de pacotes"
+  "Scan de firewall com MAC spoofing"
+  "Scan de host utilizando serviços UDP"
+  "Scan decoys (camufla o ip)")
 
 #===============================================================#
 # Verifica se o usuário está logado como root
@@ -55,7 +55,7 @@ checkroot_func() {
   if [[ $EUID -ne 0 ]]; then
     echo -e ${Vd}"\nPARA EXECUTAR ESSE PROGRAMA, RODE${Fm} ${Rd}sudo ./ghost"${Fm}
     echo -e ${Red}"\nNÃO É POSSIVEL EXECUTAR SEM ESTAR COMO ROOT..."${Fm}
-    sleep 2s && exit 1 
+    sleep 2s && exit 1
   else
     echo -e ${Rd}"\n\t\t======[${Fm}${Br}STARTANDO O PROGRAMA AGUARDE!${Fm}${Rd}]======"${Fm}
     sleep 1s
@@ -68,15 +68,15 @@ checkroot_func() {
 checkdependencias() {
 
   deps=("nmap" "ipcalc" "net-tools" "git" "pixiewps"
-  "build-essential" "libpcap-dev" "aircrack-ng" "reaver" "ethtool")
+    "build-essential" "libpcap-dev" "aircrack-ng" "reaver" "ethtool")
 
   declare -a missing
 
   for d in "${!deps[@]}"; do
 
-    [[ -z $(sudo dpkg -l "${deps[$d]}" 2> /dev/null) ]] && missing+=(${deps[$d]})
+    [[ -z $(sudo dpkg -l "${deps[$d]}" 2>/dev/null) ]] && missing+=(${deps[$d]})
 
-  done 
+  done
 
   if [[ ${#missing[@]} -ne 0 ]]; then
     echo -e ${Rd}"\n\tFALTAM AS DEPENDÊNCIAS:${Fm}${Cy} ${missing[@]}"${Fm}
@@ -104,10 +104,10 @@ retorno_func() {
   echo -e ${Rd}"\nRETORNAR PARA: NMAP${Fm}${Br} [N]${Fm}${Rd} WIFICRACK${Fm}${Br} [W]${Fm}"
   read -p $'\033[1;37mR: \033[m' RES
   if [[ "${RES^^}" = "N" ]]; then
-    LAN=($(sudo ifconfig | grep 'wl' | awk '{print $1}'))    
-    sudo airmon-ng stop ${LAN%%:*} > /dev/null
+    LAN=($(sudo ifconfig | grep 'wl' | awk '{print $1}'))
+    sudo airmon-ng stop ${LAN%%:*} >/dev/null
     echo -e ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuNmap_func
-  fi 
+  fi
   [[ "${RES^^}" = "W" ]] && echo -e ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuWificrack_func
 }
 
@@ -153,18 +153,18 @@ open_log() {
 nmap_func() {
 
   case $dig in
-    1) nmap -f -sS -vv -T4 -Pn $IP | grep "Discovered open port" 2>&- ;;
-    2) nmap -O -vv -Pn $IP | grep "OS CPE:" 2>&- ;;
-    3) nmap -sS -sV -vv -O -T4 -Pn $IP | grep -E "Discovered open port|OS CPE:|OS details:" 2>&- ;;
-    4) nmap -sS -vv -Pn -p $port $IP | grep "Discovered open port" | awk '{print $2, $4, $5, $6}' 2>&- ;;
-    5) nmap --script=mysql-brute $IP 2>&- ;;
-    6) nmap -sS -v -Pn -A --open --script=vuln $IP 2>&- ;;
-    7) nmap --script=asn-query,whois-ip,ip-geolocation-maxmind $IP 2>&- ;;
-    8) nmap -sU -A -PN -n -pU:19,53,123,161 --script=ntp-monlist,dns-recursion,snmp-sysdescr $IP 2>&- ;;
-    9) nmap --mtu 32 $IP 2>&- ;;
-    10) nmap -v -sT -PN --spoof-mac 0 $IP 2>&- ;;
-    11) nmap -sU $IP 2>&- ;;
-    12) nmap -n -D 192.168.1.1,10.5.1.2,172.1.2.4,3.4.2.1 $IP 2>&- ;;
+  1) nmap -f -sS -vv -T4 -Pn $IP | grep "Discovered open port" 2>&- ;;
+  2) nmap -O -vv -Pn $IP | grep "OS CPE:" 2>&- ;;
+  3) nmap -sS -sV -vv -O -T4 -Pn $IP | grep -E "Discovered open port|OS CPE:|OS details:" 2>&- ;;
+  4) nmap -sS -vv -Pn -p $port $IP | grep "Discovered open port" | awk '{print $2, $4, $5, $6}' 2>&- ;;
+  5) nmap --script=mysql-brute $IP 2>&- ;;
+  6) nmap -sS -v -Pn -A --open --script=vuln $IP 2>&- ;;
+  7) nmap --script=asn-query,whois-ip,ip-geolocation-maxmind $IP 2>&- ;;
+  8) nmap -sU -A -PN -n -pU:19,53,123,161 --script=ntp-monlist,dns-recursion,snmp-sysdescr $IP 2>&- ;;
+  9) nmap --mtu 32 $IP 2>&- ;;
+  10) nmap -v -sT -PN --spoof-mac 0 $IP 2>&- ;;
+  11) nmap -sU $IP 2>&- ;;
+  12) nmap -n -D 192.168.1.1,10.5.1.2,172.1.2.4,3.4.2.1 $IP 2>&- ;;
   esac
 }
 
@@ -181,8 +181,7 @@ nmap_scanner() {
 
   echo -e ${Rd}"\n======================================================"${Fm}
 
-  nmap_func $dig >> ghost-log.txt
-
+  nmap_func $dig >>ghost-log.txt 
 }
 
 mask_func() {
@@ -194,9 +193,9 @@ mask_func() {
     read -p $'\033[1;31m\nDIGITE UM IP VÁLIDO!.\nR: \033[m' ip && mask_func
   else
     case $mask in
-      [0-9]|[0-9][0-9]) # Metodo usado para suprir a nescessidade de colocar número ao lado de número.
+    [0-9] | [0-9][0-9]) # Metodo usado para suprir a nescessidade de colocar número ao lado de número.
       IP="${ip}/$mask" && nmap_scanner $IP ;;
-      *) optionexit_func ;;
+    *) optionexit_func ;;
     esac
   fi
   open_log
@@ -204,14 +203,23 @@ mask_func() {
 
 full_range() {
 
-  IFS='.' read C1 C2 C3 C4 <<< $ip
-  
-  while : ; do 
+  IFS='.' read C1 C2 C3 C4 <<<$ip
 
-    for X in {1..255}; do IP=$"$C1.${C2//*/$X}.${C3//*/0}.${C4//*/1}"; nmap_scanner $IP continue; done
-    for Y in {1..255}; do IP=$"$C1.${C2//*/$X}.${C3//*/$Y}.${C4//*/1}"; nmap_scanner $IP continue; done
-    for Z in {1..255}; do IP=$"$C1.${C2//*/$X}.${C3//*/$Y}.${C4//*/$Z}"; nmap_scanner $IP continue; done
-    
+  while :; do
+
+    for X in {1..255}; do
+      IP=$"$C1.${C2//*/$X}.${C3//*/0}.${C4//*/1}"
+      nmap_scanner $IP continue
+    done
+    for Y in {1..255}; do
+      IP=$"$C1.${C2//*/$X}.${C3//*/$Y}.${C4//*/1}"
+      nmap_scanner $IP continue
+    done
+    for Z in {1..255}; do
+      IP=$"$C1.${C2//*/$X}.${C3//*/$Y}.${C4//*/$Z}"
+      nmap_scanner $IP continue
+    done
+
     break
   done
 }
@@ -223,7 +231,7 @@ ip_func() {
 
   if [[ "$dns" =~ ^[[:alpha:]] ]]; then
     # Converte toda a URL passada, em IP
-    read _ _ _ IP <<< $( host $dns | grep "address" ) && nmap_scanner $dig && open_log
+    read _ _ _ IP <<<$(host $dns | grep "address") && nmap_scanner $dig && open_log
   else
     # Tomada de decisão com responsabilidade de validação de IP
     if [[ $dns =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
@@ -240,17 +248,17 @@ rede_func() {
   [[ $dig -eq 4 ]] && read -p $'\033[1;31m\nDIGITE A PORTA OU PORTAS. Ex: 22 ou 22,80,443\nR: \033[m' port
 
   if [[ "$dns" =~ ^[[:alpha:]] ]]; then
-    read _ _ _ ip <<< $( host $dns | grep "address" ) # Converte toda a URL passada, em IP
+    read _ _ _ ip <<<$(host $dns | grep "address") # Converte toda a URL passada, em IP
     read -p $'\033[1;31m\nESCANEAR EM MODO FULL-RANGE?\nESTE MODO FAZ UM SCANNER DO XXX.0.0.1 ATÉ XXX.255.255.255\nR: \033[m' RES
     if [[ "${RES,,}" == @(s|sim) ]]; then
       full_range && open_log
     else
-      mask_func 
+      mask_func
     fi
   else
     # Tomada de decisão com responsabilidade de validação de IP
     if [[ $dns =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-      ip="$dns" 
+      ip="$dns"
       read -p $'\033[1;31m\nESCANEAR EM MODO FULL-RANGE?\nESTE MODO FAZ UM SCANNER DO XXX.0.0.1 ATÉ XXX.255.255.255.\nR: \033[m' RES
       if [[ "${RES,,}" == @(s|sim) ]]; then
         full_range && open_log
@@ -267,16 +275,20 @@ ghost_fun() {
 
   case $dig in
 
-    [1-9]|[0-9][0-9]) # Metodo usado para suprir a nescessidade de colocar numero ao lado de número.
+  [1-9] | [0-9][0-9]) # Metodo usado para suprir a nescessidade de colocar numero ao lado de número.
 
-      echo -e ${Rd}"\nESCANEAR IP OU REDE?${Fm}${Br} [I/R]"${Fm}
-      echo -e ${Rd}"\nTODAS AS SAÍDAS SERÃO DIRECIONADAS PARA O ARQUIVO:${Fm}${Cy} ghost-log.txt"${Fm}
-      read -p $'\033[1;37mR: \033[m' RES
-      [[ "$RES" == @(i|I) ]] && ip_func $dig || [[ "$RES" == @(r|R) ]] && rede_func $dig || optionexit_func ;;
+    echo -e ${Rd}"\nESCANEAR IP OU REDE?${Fm}${Br} [I/R]"${Fm}
+    echo -e ${Rd}"\nTODAS AS SAÍDAS SERÃO DIRECIONADAS PARA O ARQUIVO:${Fm}${Cy} ghost-log.txt"${Fm}
+    read -p $'\033[1;37mR: \033[m' RES
+    [[ "$RES" == @(i|I) ]] && ip_func $dig || [[ "$RES" == @(r|R) ]] && rede_func $dig || optionexit_func
+    ;;
 
-    0) exit_func ;;
+  0) exit_func ;;
 
-    *) optionexit_func; retorno_func ;;
+  *)
+    optionexit_func
+    retorno_func
+    ;;
   esac
 }
 
@@ -286,19 +298,19 @@ MenuNmap_func() {
   while true; do
 
     echo -e ${Rd}"==============================================================================\n"${Fm}
-    
+
     for X in "${!NMAP[@]}"; do
       echo -e ${Vd}"\t\t\t${NMAP[$X]}"${Fm}
       sleep 0.1s
     done
 
     echo -e ${Rd}"\n=============================================================================="${Fm}
-    
+
     for N in "${!nmapwrite[@]}"; do
       echo -e ${Rd}" [$N]"${Fm} ${Br}"${nmapwrite[$N]}"${Fm}
       sleep 0.05s
     done
-    
+
     echo -e ${Rd}"=============================================================================="${Fm}
 
     echo -e ${Red}"ESCOLHA UMA DAS OPÇÕES DO MENU ACIMA"${Fm}
@@ -344,7 +356,7 @@ airmon_func() {
 
   echo -e ${Rd}"\nCOLOCANDO A PLACA WIFI EM MODO MONITOR"${Fm}
   sleep 2s
-  sudo airmon-ng start ${LAN[$P]%%:*} > /dev/null && clear
+  sudo airmon-ng start ${LAN[$P]%%:*} >/dev/null && clear
   echo -e ${Rd}"OBTENDO REDES WIFI DISPONIVEIS, O PROCESSO LEVARÁ ALGUNS SEGUNDOS\n"${Fm}
 
 }
@@ -353,11 +365,11 @@ wash_func() {
 
   sudo timeout --preserve-status 30 wash -i ${LAN[$P]%%:*}mon | tee MACS.txt
   MACS=($(cat MACS.txt | grep ':' | awk '{print $1" "$2}'))
-  
+
   echo -e ${Rd}"\nESCOLHA UMA REDE PARA ATAQUE\n"${Fm}
 
-  for (( X = 0; X < ${#MACS[@]}; X = X + 2 )); do 
-    echo -e ${Rd}"[$X] MAC:${Fm} ${Vd}${MACS[$X]}"${Fm} 
+  for ((X = 0; X < ${#MACS[@]}; X = X + 2)); do
+    echo -e ${Rd}"[$X] MAC:${Fm} ${Vd}${MACS[$X]}"${Fm}
   done
 
   read -p $'\033[31;1m\nDIGITE O ÍNDICE DA REDE ESCOLHIDA R: \033[m' I
@@ -388,7 +400,7 @@ MenuWificrack_func() {
 
   clear
   while true; do
-  
+
     echo -e ${Rd}"==============================================================================\n"${Fm}
 
     for X in "${!WIFI[@]}"; do
@@ -412,9 +424,9 @@ MenuWificrack_func() {
       [[ "${inicio,,}" == @(s|sim) ]] && MenuWificrack_func || exit_func
     else
       case $dig in
-        0) exit_func ;;
-        1) reaver_func ;;
-        2) bully_func ;;
+      0) exit_func ;;
+      1) reaver_func ;;
+      2) bully_func ;;
       esac
     fi
   done
@@ -450,9 +462,9 @@ Menu() {
       [[ "${inicio,,}" == @(s|sim) ]] && retorno_func || exit_func
     else
       case $dig in
-        0) exit_func ;;
-        1) MenuNmap_func ;;
-        2) MenuWificrack_func ;;
+      0) exit_func ;;
+      1) MenuNmap_func ;;
+      2) MenuWificrack_func ;;
       esac
     fi
   done
