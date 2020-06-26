@@ -1,6 +1,0 @@
-BSSID               Ch  dBm  WPS  Lck  Vendor    ESSID
---------------------------------------------------------------------------------
-CC:32:E5:20:6A:00    2  -40  2.0  No   RalinkTe  Eliana & zappen
-98:DA:C4:AF:7C:79    3  -43  2.0  No   RalinkTe  Fernando@palmasnet34356662
-68:FF:7B:B6:6B:7A   10  -63  2.0  No   RalinkTe  Vilmar Zappen3435-6662
-44:13:D0:FE:B0:07   11  -88  1.0  No   RealtekS  Arthur

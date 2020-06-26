@@ -48,7 +48,7 @@ readonly nmapwrite=(
 #===============================================================#
 # Verifica se o usuário está logado como root
 #===============================================================#
-checkroot_func() {
+Checkroot() {
 
   clear
 
@@ -65,7 +65,7 @@ checkroot_func() {
 #=================================================================#
 # Verifica se existem dependências, e instalando-as se nescessário
 #=================================================================#
-checkdependencias() {
+Checkdependencias() {
 
   deps=("nmap" "ipcalc" "net-tools" "git" "pixiewps"
     "build-essential" "libpcap-dev" "aircrack-ng" "reaver" "ethtool")
@@ -85,10 +85,10 @@ checkdependencias() {
     if [[ "${RES,,}" == @(s|sim) ]]; then
       sudo apt update && sudo apt install ${missing[@]} -y
       echo -e ${Vd}"\n\t\tTODAS AS DEPENDÊNCIAS FORAM INSTALADAS"${Fm}
-      sleep 1s && retorno_func
+      sleep 1s && Retorno
     elif [[ "${RES,,}" == @(n|não) ]]; then
       echo -e ${Rd}"\n\t\tNÃO É POSSÍVEL PROSSEGUIR SEM INSTALAR AS DEPENDÊNCIAS"${Fm}
-      sleep 3s && thanks_func
+      sleep 3s && Thanks
     else
       echo -e ${Rd}"\n\t\tNÃO FOI POSSÍVEL INSTALAR AS DEPENDÊNCIAS ${missing[@]}"${Fm}
     fi
@@ -99,76 +99,79 @@ checkdependencias() {
   fi
 }
 
-retorno_func() {
+Retorno() {
 
-  echo -e ${Rd}"\nRETORNAR PARA: NMAP${Fm}${Br} [N]${Fm}${Rd} WIFICRACK${Fm}${Br} [W]${Fm}"
+  echo -e ${Rd}"\nRETORNAR PARA: NMAP${Fm}${Br} [N]${Fm}${Rd} WIFICRACK${Fm}${Br} [W]${Fm} ${Rd} MENU${Fm}${Br} [M]${Fm}"
   read -p $'\033[1;37mR: \033[m' RES
-  if [[ "${RES^^}" = "N" ]]; then
+  case $RES in
+  n | N)
     LAN=($(sudo ifconfig | grep 'wl' | awk '{print $1}'))
     sudo airmon-ng stop ${LAN%%:*} >/dev/null
-    echo -e ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuNmap_func
-  fi
-  [[ "${RES^^}" = "W" ]] && echo -e ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuWificrack_func
+    echo -e ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuNmap
+    ;;
+  w | W) echo -e ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuWificrack ;;
+  m | M) echo -e ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && Menu ;;
+  esac
 }
 
-thanks_func() {
+Thanks() {
 
   echo -e ${Rd}"\nSAINDO...${Vd}\n\nOBRIGADO POR USAR O GHOST..."${Fm}
   sleep 2s && clear && exit
 }
 
-exit_func() {
+Exit() {
 
   if [[ -e ghost-log.txt ]]; then
     echo -e ${Rd}"\nEXCLUIR O ARQUIVO ${Cy}ghost-log.txt${Fm}${Rd}?${Fm}${Rd} [${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
     read -p $'\033[1;37mR: \033[m' RES
     if [[ "$RES" == @(s|S) ]]; then
-      sudo rm -rf ghost-log.txt && echo -e ${Vd}"\nARQUIVO EXCLUIDO COM SUCESSO!"${Fm} && thanks_func
+      sudo rm -rf ghost-log.txt && echo -e ${Vd}"\nARQUIVO EXCLUIDO COM SUCESSO!"${Fm} && Thanks
     else
-      thanks_func
+      Thanks
     fi
   else
-    echo -e ${Vd}"\nNÃO HÁ ARQUIVO DE LOG A SER EXCLUIDO!"${Fm} && thanks_func
+    echo -e ${Vd}"\nNÃO HÁ ARQUIVO DE LOG A SER EXCLUIDO!"${Fm} && Thanks
   fi
 }
 
-optionexit_func() {
+OptionExit() {
 
   echo -e ${Rd}"\nDESEJA SAIR DO GHOST?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
-  [[ "$RES" == @(n|N) ]] && retorno_func || exit_func
+  [[ "$RES" == @(n|N) ]] && Retorno || Exit
 }
 
-open_log() {
+OpenLog() {
 
   tput cnorm -- normal
   echo -ne "\n${Rd}ABRIR O ARQUIVO${Fm}${Cy} ghost-log.txt?${Fm} ${Rd}[${Fm}${Br}S/N${Rd}]${Fm}\n${Fm}R: ${Fm}"
   read RES
-  [[ "${RES,,}" == @(s|sim) ]] && cat ghost-log.txt || retorno_func
+  [[ "${RES,,}" == @(s|sim) ]] && cat ghost-log.txt || Retorno
   echo -e ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
-  [[ "$RES" == @(s|S) ]] && retorno_func || exit_func
+  [[ "$RES" == @(s|S) ]] && Retorno || Exit
 }
 
-nmap_func() {
+Nmap() {
 
   case $dig in
-  1) nmap -f -sS -vv -T4 -Pn $IP | grep "Discovered open port" 2>&- ;;
-  2) nmap -O -vv -Pn $IP | grep "OS CPE:" 2>&- ;;
-  3) nmap -sS -sV -vv -O -T4 -Pn $IP | grep -E "Discovered open port|OS CPE:|OS details:" 2>&- ;;
-  4) nmap -sS -vv -Pn -p $port $IP | grep "Discovered open port" | awk '{print $2, $4, $5, $6}' 2>&- ;;
-  5) nmap --script=mysql-brute $IP 2>&- ;;
-  6) nmap -sS -v -Pn -A --open --script=vuln $IP 2>&- ;;
-  7) nmap --script=asn-query,whois-ip,ip-geolocation-maxmind $IP 2>&- ;;
-  8) nmap -sU -A -PN -n -pU:19,53,123,161 --script=ntp-monlist,dns-recursion,snmp-sysdescr $IP 2>&- ;;
-  9) nmap --mtu 32 $IP 2>&- ;;
-  10) nmap -v -sT -PN --spoof-mac 0 $IP 2>&- ;;
-  11) nmap -sU $IP 2>&- ;;
-  12) nmap -n -D 192.168.1.1,10.5.1.2,172.1.2.4,3.4.2.1 $IP 2>&- ;;
+    1) nmap -f -sS -vv -T4 -Pn $IP | grep "Discovered open port" 2>&- ;;
+    2) nmap -O -vv -Pn $IP | grep "OS CPE:" 2>&- ;;
+    3) nmap -sS -sV -vv -O -T4 -Pn $IP | grep -E "Discovered open port|OS CPE:|OS details:" 2>&- ;;
+    4) nmap -sS -vv -Pn -p $port $IP | grep "Discovered open port" | awk '{print $2, $4, $5, $6}' 2>&- ;;
+    5) nmap --script=mysql-brute $IP 2>&- ;;
+    6) nmap -sS -v -Pn -A --open --script=vuln $IP 2>&- ;;
+    7) nmap --script=asn-query,whois-ip,ip-geolocation-maxmind $IP 2>&- ;;
+    8) nmap -sU -A -PN -n -pU:19,53,123,161 --script=ntp-monlist,dns-recursion,snmp-sysdescr $IP 2>&- ;;
+    9) nmap --mtu 32 $IP 2>&- ;;
+    10) nmap -v -sT -PN --spoof-mac 0 $IP 2>&- ;;
+    11) nmap -sU $IP 2>&- ;;
+    12) nmap -n -D 192.168.1.1,10.5.1.2,172.1.2.4,3.4.2.1 $IP 2>&- ;;
   esac
 }
 
-nmap_scanner() {
+NmapScanner() {
 
   clear
   tput civis -- invisible
@@ -181,27 +184,27 @@ nmap_scanner() {
 
   echo -e ${Rd}"\n======================================================"${Fm}
 
-  nmap_func $dig >>ghost-log.txt 
+  Nmap $dig >>ghost-log.txt
 }
 
-mask_func() {
+Mask() {
 
   mask=$(ipcalc --class $ip)
 
   if [[ "$mask" = "invalid" ]]; then
     echo -e ${Rd}"\nO [ ${Fm}${Br}${ip}${Fm}${Rd} ] É UM IP INVÁLIDO!!!"${Fm}
-    read -p $'\033[1;31m\nDIGITE UM IP VÁLIDO!.\nR: \033[m' ip && mask_func
+    read -p $'\033[1;31m\nDIGITE UM IP VÁLIDO!.\nR: \033[m' ip && Mask
   else
     case $mask in
-    [0-9] | [0-9][0-9]) # Metodo usado para suprir a nescessidade de colocar número ao lado de número.
-      IP="${ip}/$mask" && nmap_scanner $IP ;;
-    *) optionexit_func ;;
+      [0-9] | [0-9][0-9]) # Metodo usado para suprir a nescessidade de colocar número ao lado de número.
+        IP="${ip}/$mask" && NmapScanner $IP ;;
+      *) OptionExit ;;
     esac
   fi
-  open_log
+  OpenLog
 }
 
-full_range() {
+FullRange() {
 
   IFS='.' read C1 C2 C3 C4 <<<$ip
 
@@ -209,40 +212,40 @@ full_range() {
 
     for X in {1..255}; do
       IP=$"$C1.${C2//*/$X}.${C3//*/0}.${C4//*/1}"
-      nmap_scanner $IP continue
+      NmapScanner $IP continue
     done
     for Y in {1..255}; do
       IP=$"$C1.${C2//*/$X}.${C3//*/$Y}.${C4//*/1}"
-      nmap_scanner $IP continue
+      NmapScanner $IP continue
     done
     for Z in {1..255}; do
       IP=$"$C1.${C2//*/$X}.${C3//*/$Y}.${C4//*/$Z}"
-      nmap_scanner $IP continue
+      NmapScanner $IP continue
     done
 
     break
   done
 }
 
-ip_func() {
+IPF() {
 
   [[ $dig -eq 4 ]] && read -p $'\033[1;31m\nDIGITE A PORTA OU PORTAS. Ex: 22 ou 22,80,443\nR: \033[m' port
   read -p $'\033[1;31m\nDIGITE SOMENTE O IP, OU URL.\nR: \033[m' dns
 
   if [[ "$dns" =~ ^[[:alpha:]] ]]; then
     # Converte toda a URL passada, em IP
-    read _ _ _ IP <<<$(host $dns | grep "address") && nmap_scanner $dig && open_log
+    read _ _ _ IP <<<$(host $dns | grep "address") && NmapScanner $dig && OpenLog
   else
     # Tomada de decisão com responsabilidade de validação de IP
     if [[ $dns =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-      IP="$dns" && nmap_scanner $dig && open_log
+      IP="$dns" && NmapScanner $dig && OpenLog
     else
-      echo -e ${Rd}"\nO [ ${Fm}${Br}${dns}${Fm}${Rd} ] É UM IP INVÁLIDO!!!"${Fm} && ip_func
+      echo -e ${Rd}"\nO [ ${Fm}${Br}${dns}${Fm}${Rd} ] É UM IP INVÁLIDO!!!"${Fm} && IPF
     fi
   fi
 }
 
-rede_func() {
+Rede() {
 
   read -p $'\033[1;31m\nDIGITE O IP OU URL.\nR: \033[m' dns
   [[ $dig -eq 4 ]] && read -p $'\033[1;31m\nDIGITE A PORTA OU PORTAS. Ex: 22 ou 22,80,443\nR: \033[m' port
@@ -251,9 +254,9 @@ rede_func() {
     read _ _ _ ip <<<$(host $dns | grep "address") # Converte toda a URL passada, em IP
     read -p $'\033[1;31m\nESCANEAR EM MODO FULL-RANGE?\nESTE MODO FAZ UM SCANNER DO XXX.0.0.1 ATÉ XXX.255.255.255\nR: \033[m' RES
     if [[ "${RES,,}" == @(s|sim) ]]; then
-      full_range && open_log
+      FullRange && OpenLog
     else
-      mask_func
+      Mask
     fi
   else
     # Tomada de decisão com responsabilidade de validação de IP
@@ -261,17 +264,17 @@ rede_func() {
       ip="$dns"
       read -p $'\033[1;31m\nESCANEAR EM MODO FULL-RANGE?\nESTE MODO FAZ UM SCANNER DO XXX.0.0.1 ATÉ XXX.255.255.255.\nR: \033[m' RES
       if [[ "${RES,,}" == @(s|sim) ]]; then
-        full_range && open_log
+        FullRange && OpenLog
       else
-        mask_func
+        Mask
       fi
     else
-      echo -e ${Rd}"\nO [ ${Fm}${Br}${dns}${Fm}${Rd} ] É UM IP INVÁLIDO!!!"${Fm} && rede_func
+      echo -e ${Rd}"\nO [ ${Fm}${Br}${dns}${Fm}${Rd} ] É UM IP INVÁLIDO!!!"${Fm} && Rede
     fi
   fi
 }
 
-ghost_fun() {
+Ghost() {
 
   case $dig in
 
@@ -280,19 +283,16 @@ ghost_fun() {
     echo -e ${Rd}"\nESCANEAR IP OU REDE?${Fm}${Br} [I/R]"${Fm}
     echo -e ${Rd}"\nTODAS AS SAÍDAS SERÃO DIRECIONADAS PARA O ARQUIVO:${Fm}${Cy} ghost-log.txt"${Fm}
     read -p $'\033[1;37mR: \033[m' RES
-    [[ "$RES" == @(i|I) ]] && ip_func $dig || [[ "$RES" == @(r|R) ]] && rede_func $dig || optionexit_func
+    [[ "$RES" == @(i|I) ]] && IPF $dig || [[ "$RES" == @(r|R) ]] && Rede $dig || OptionExit
     ;;
 
-  0) exit_func ;;
+  0) Exit ;;
 
-  *)
-    optionexit_func
-    retorno_func
-    ;;
+  *) OptionExit && Retorno ;;
   esac
 }
 
-MenuNmap_func() {
+MenuNmap() {
 
   clear
   while true; do
@@ -321,26 +321,26 @@ MenuNmap_func() {
       echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!\nSÓ É ACEITO NÚMEROS!\n\n${Br}RETORNAR AO NMAP?${Fm} \
       ${Rd}[${Fm}${Br}S/N${Fm}${Rd}]\n${Fm}R: ${Fm}"
       read inicio
-      [[ "${inicio,,}" == @(s|sim) ]] && MenuNmap_func
+      [[ "${inicio,,}" == @(s|sim) ]] && MenuNmap
     else
       case $dig in
       0) Menu ;;
-      *) ghost_fun $dig ;;
+      *) Ghost $dig ;;
       esac
     fi
   done
 
 }
 
-airmonstop_func() {
+AirmonStop() {
 
   echo -e ${Vd}"DESABILITANDO A PLACA DE REDE DO MODO MONITOR"${Fm}
   sleep 2s
   sudo airmon-ng stop ${LAN[$P]%%:*}mon
-  thanks_func
+  Thanks
 }
 
-airmon_func() {
+Airmon() {
 
   clear
   LAN=($(sudo ifconfig | grep 'wl' | awk '{print $1}'))
@@ -364,7 +364,7 @@ airmon_func() {
 
 }
 
-wash_func() {
+Wash() {
 
   sudo timeout --preserve-status 30 wash -i ${LAN[$P]%%:*}mon | tee MACS.txt
   MACS=($(cat MACS.txt | grep ':' | awk '{print $1" "$2}'))
@@ -379,27 +379,27 @@ wash_func() {
   echo -e ${Cy}"\nESTE PROCESSO PODE DEMORAR VÁRIOS MINUTOS\nAGUARDE O FIM DO PROCESSO...\n"${Fm}
 }
 
-bully_func() {
+Bully() {
 
-  airmon_func
-  wash_func
-  bully ${LAN[$P]%%:*}mon -b${MACS[$I]} -c${MACS[$I+1]} -d -A -F -B -l 5
+  Airmon
+  Wash
+  bully ${LAN[$P]%%:*}mon -b${MACS[$I]} -c${MACS[$I + 1]} -d -A -F -B -l 5
   echo -e ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
-  [[ "$RES" == @(s|S) ]] && retorno_func || airmonstop_func ${LAN[$P]%%*}mon
+  [[ "$RES" == @(s|S) ]] && Retorno || AirmonStop ${LAN[$P]%%*}mon
 }
 
-reaver_func() {
+Reaver() {
 
-  airmon_func
-  wash_func
-  reaver -c${MACS[$I+1]} -b${MACS[$I]} -vv -i ${LAN[$P]%%:*}mon -L -Z -K 1
+  Airmon
+  Wash
+  reaver -c${MACS[$I + 1]} -b${MACS[$I]} -vv -i ${LAN[$P]%%:*}mon -L -Z -K 1
   echo -e ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
-  [[ "$RES" == @(s|S) ]] && retorno_func || airmonstop_func ${LAN[$P]%%:*}mon
+  [[ "$RES" == @(s|S) ]] && Retorno || AirmonStop ${LAN[$P]%%:*}mon
 }
 
-MenuWificrack_func() {
+MenuWificrack() {
 
   clear
   while true; do
@@ -424,12 +424,12 @@ MenuWificrack_func() {
       echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!\nSÓ É ACEITO NÚMEROS!\n\n${Br}RETORNAR AO WIFICRACK?${Fm} \
       ${Rd}[${Fm}${Br}S/N${Fm}${Rd}]\n${Fm}R: ${Fm}"
       read inicio
-      [[ "${inicio,,}" == @(s|sim) ]] && MenuWificrack_func || exit_func
+      [[ "${inicio,,}" == @(s|sim) ]] && MenuWificrack || Exit
     else
       case $dig in
       0) Menu ;;
-      1) reaver_func ;;
-      2) bully_func ;;
+      1) Reaver ;;
+      2) Bully ;;
       esac
     fi
   done
@@ -462,17 +462,17 @@ Menu() {
       echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!\nSÓ É ACEITO NÚMEROS!\n\n${Br}RETORNAR AO INICIO?${Fm} \
       ${Rd}[${Fm}${Br}S/N${Fm}${Rd}]\n${Fm}R: ${Fm}"
       read inicio
-      [[ "${inicio,,}" == @(s|sim) ]] && retorno_func || exit_func
+      [[ "${inicio,,}" == @(s|sim) ]] && Retorno || Exit
     else
       case $dig in
-      0) exit_func ;;
-      1) MenuNmap_func ;;
-      2) MenuWificrack_func ;;
+      0) Exit ;;
+      1) MenuNmap ;;
+      2) MenuWificrack ;;
       esac
     fi
   done
 }
-checkroot_func
-checkdependencias
+Checkroot
+Checkdependencias
 Menu
 #=============================================================[FIM]==================================================================#
