@@ -31,7 +31,7 @@ Fm="\e[0m"
 source logos.sh
 
 readonly nmapwrite=(
-  "Para sair"
+  "Para retornar ao menu principal"
   "Informações somente de portas abertas"
   "Informações de qual Sistema Operacional"
   "Informações do sistema Operacional, versões dos serviços e portas"
@@ -321,9 +321,12 @@ MenuNmap_func() {
       echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!\nSÓ É ACEITO NÚMEROS!\n\n${Br}RETORNAR AO NMAP?${Fm} \
       ${Rd}[${Fm}${Br}S/N${Fm}${Rd}]\n${Fm}R: ${Fm}"
       read inicio
-      [[ "${inicio,,}" == @(s|sim) ]] && MenuNmap_func || exit_func
+      [[ "${inicio,,}" == @(s|sim) ]] && MenuNmap_func
     else
-      ghost_fun $dig
+      case $dig in
+      0) Menu ;;
+      *) ghost_fun $dig ;;
+      esac
     fi
   done
 
@@ -409,7 +412,7 @@ MenuWificrack_func() {
     done
 
     echo -e ${Rd}"\n=============================================================================="${Fm}
-    echo -e ${Rd}" [0]"${Fm}${Br}" Para sair"${Fm}
+    echo -e ${Rd}" [0]"${Fm}${Br}" Para retornar ao menu principal"${Fm}
     echo -e ${Rd}" [1]"${Fm}${Br}" Quebra do PIN WPS com REAVER"${Fm}
     echo -e ${Rd}" [2]"${Fm}${Br}" Quebra do PIN WPS com BULLY"${Fm}
     echo -e ${Rd}"=============================================================================="${Fm}
@@ -424,7 +427,7 @@ MenuWificrack_func() {
       [[ "${inicio,,}" == @(s|sim) ]] && MenuWificrack_func || exit_func
     else
       case $dig in
-      0) exit_func ;;
+      0) Menu ;;
       1) reaver_func ;;
       2) bully_func ;;
       esac
