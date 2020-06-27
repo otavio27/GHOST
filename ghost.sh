@@ -8,10 +8,9 @@
 #===============================================================#
 # Autor: Otávio Will
 # Email: <owtechdeveloper@gmail.com>
-# Versão: 2.7
 #===============================================================#
 
-version="Versão: 2.7"
+version="Versão: 2.8"
 
 # Colors
 Br="\033[37;1m"
@@ -151,18 +150,18 @@ OpenLog() {
 Nmap() {
 
   case ${dig} in
-    1) nmap -f -sS -vv -T4 -Pn $IP | grep "Discovered open port" 2>&- ;;
-    2) nmap -O -vv -Pn $IP | grep "OS CPE:" 2>&- ;;
-    3) nmap -sS -sV -vv -O -T4 -Pn $IP | grep -E "Discovered open port|OS CPE:|OS details:" 2>&- ;;
-    4) nmap -sS -vv -Pn -p $port $IP | grep "Discovered open port" | awk '{print $2, $4, $5, $6}' 2>&- ;;
-    5) nmap --script=mysql-brute $IP 2>&- ;;
-    6) nmap -sS -v -Pn -A --open --script=vuln $IP 2>&- ;;
-    7) nmap --script=asn-query,whois-ip,ip-geolocation-maxmind $IP 2>&- ;;
-    8) nmap -sU -A -PN -n -pU:19,53,123,161 --script=ntp-monlist,dns-recursion,snmp-sysdescr $IP 2>&- ;;
-    9) nmap --mtu 32 $IP 2>&- ;;
-    10) nmap -v -sT -PN --spoof-mac 0 $IP 2>&- ;;
-    11) nmap -sU $IP 2>&- ;;
-    12) nmap -n -D 192.168.1.1,10.5.1.2,172.1.2.4,3.4.2.1 $IP 2>&- ;;
+    1) nmap -f -sS -vv -T4 -Pn ${IP} | grep "Discovered open port" 2>&- ;;
+    2) nmap -O -vv -Pn ${IP} | grep "OS CPE:" 2>&- ;;
+    3) nmap -sS -sV -vv -O -T4 -Pn ${IP} | grep -E "Discovered open port|OS CPE:|OS details:" 2>&- ;;
+    4) nmap -sS -vv -Pn -p $port ${IP} | grep "Discovered open port" | awk '{print $2, $4, $5, $6}' 2>&- ;;
+    5) nmap --script=mysql-brute ${IP} 2>&- ;;
+    6) nmap -sS -v -Pn -A --open --script=vuln ${IP} 2>&- ;;
+    7) nmap --script=asn-query,whois-ip,ip-geolocation-maxmind ${IP} 2>&- ;;
+    8) nmap -sU -A -PN -n -pU:19,53,123,161 --script=ntp-monlist,dns-recursion,snmp-sysdescr ${IP} 2>&- ;;
+    9) nmap --mtu 32 ${IP} 2>&- ;;
+    10) nmap -v -sT -PN --spoof-mac 0 ${IP} 2>&- ;;
+    11) nmap -sU ${IP} 2>&- ;;
+    12) nmap -n -D 192.168.1.1,10.5.1.2,172.1.2.4,3.4.2.1 ${IP} 2>&- ;;
   esac
 }
 
@@ -171,20 +170,24 @@ NmapScanner() {
   clear
   tput civis -- invisible
 
-  echo -e ${Rd}"\n========================[${Fm}${Br}GHOST${Fm}${Rd}]======================="${Fm}
+  echo -e ${Rd}"\n==========================[${Fm}${Br}GHOST${Fm}${Rd}]========================="${Fm}
+  if [[ ${dns} =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+    echo -e ${Rd}"\nDISPARANDO SCANNER NO ALVO: >>> [ "${FM}${Cy}"${IP}"${Fm}${Rd}" ]"${Fm}
+    echo -e ${Vd}"\nESTE PROCESSO PODE DEMORAR, AGUARDE ATÉ O FIM."${Fm}
+  else
+    echo -e ${Rd}"\nDNS INFORMADO: >>> [ "${FM}${Cy}"${dns}"${Fm}${Rd}" ]"${Fm}
+    echo -e ${Rd}"\nDISPARANDO SCANNER NO IP DO ALVO: >>> [ "${FM}${Cy}"${IP}"${Fm}${Rd}" ]"${Fm}
+    echo -e ${Vd}"\nESTE PROCESSO PODE DEMORAR, AGUARDE ATÉ O FIM."${Fm}
+  fi
 
-  echo -e ${Rd}"\nDISPARANDO SCANNER NO ALVO: >>> [ "${FM}${Cy}"$IP"${Fm}${Rd}" ]"${Fm}
-
-  echo -e ${Vd}"\nESTE PROCESSO PODE DEMORAR, AGUARDE ATÉ O FIM."${Fm}
-
-  echo -e ${Rd}"\n======================================================"${Fm}
+  echo -e ${Rd}"\n=========================================================="${Fm}
 
   Nmap ${dig} >> ghost-log.txt
 }
 
 Mask() {
 
-  mask=$(ipcalc --class $ip)
+  mask=$(ipcalc --class ${ip})
 
   if [[ "${mask}" = "invalid" ]]; then
     echo -e ${Rd}"\nO [ ${Fm}${Br}${ip}${Fm}${Rd} ] É UM IP INVÁLIDO!!!"${Fm}
@@ -192,7 +195,7 @@ Mask() {
   else
     case ${mask} in
       [0-9] | [0-9][0-9]) # Metodo usado para suprir a nescessidade de colocar número ao lado de número.
-        IP="${ip}/${mask}" && NmapScanner $IP ;;
+      IP="${ip}/${mask}" && NmapScanner ${IP} ;;
       *) OptionExit ;;
     esac
   fi
@@ -201,21 +204,21 @@ Mask() {
 
 FullRange() {
 
-  IFS='.' read C1 C2 C3 C4 <<<$ip
+  IFS='.' read C1 C2 C3 C4 <<< ${ip}
 
   while :; do
 
     for X in {1..255}; do
       IP=$"$C1.${C2//*/$X}.${C3//*/0}.${C4//*/1}"
-      NmapScanner $IP continue
+      NmapScanner ${IP} continue
     done
     for Y in {1..255}; do
       IP=$"$C1.${C2//*/$X}.${C3//*/$Y}.${C4//*/1}"
-      NmapScanner $IP continue
+      NmapScanner ${IP} continue
     done
     for Z in {1..255}; do
       IP=$"$C1.${C2//*/$X}.${C3//*/$Y}.${C4//*/$Z}"
-      NmapScanner $IP continue
+      NmapScanner ${IP} continue
     done
     break
   done
@@ -226,13 +229,13 @@ IPF() {
   [[ ${dig} -eq 4 ]] && read -p $'\033[1;31m\nDIGITE A PORTA OU PORTAS. Ex: 22 ou 22,80,443\nR: \033[m' port
   read -p $'\033[1;31m\nDIGITE SOMENTE O IP, OU URL.\nR: \033[m' dns
 
-  if [[ "$dns" =~ ^[[:alpha:]] ]]; then
+  if [[ "${dns}" =~ ^[[:alpha:]] ]]; then
     # Converte toda a URL passada, em IP
-    read _ _ _ IP <<<$(host $dns | grep "address") && NmapScanner ${dig} && OpenLog
+    read _ _ _ IP <<<$(host ${dns} | grep "address") && NmapScanner ${dig} && OpenLog
   else
     # Tomada de decisão com responsabilidade de validação de IP
-    if [[ $dns =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-      IP="$dns" && NmapScanner ${dig} && OpenLog
+    if [[ ${dns} =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+      IP="${dns}" && NmapScanner ${dig} && OpenLog
     else
       echo -e ${Rd}"\nO [ ${Fm}${Br}${dns}${Fm}${Rd} ] É UM IP INVÁLIDO!!!"${Fm} && IPF
     fi
@@ -244,8 +247,8 @@ Rede() {
   read -p $'\033[1;31m\nDIGITE O IP OU URL.\nR: \033[m' dns
   [[ ${dig} -eq 4 ]] && read -p $'\033[1;31m\nDIGITE A PORTA OU PORTAS. Ex: 22 ou 22,80,443\nR: \033[m' port
 
-  if [[ "$dns" =~ ^[[:alpha:]] ]]; then
-    read _ _ _ ip <<<$(host $dns | grep "address") # Converte toda a URL passada, em IP
+  if [[ "${dns}" =~ ^[[:alpha:]] ]]; then
+    read _ _ _ ip <<<$(host ${dns} | grep "address") # Converte toda a URL passada, em IP
     read -p $'\033[1;31m\nESCANEAR EM MODO FULL-RANGE?\nESTE MODO FAZ UM SCANNER DO XXX.0.0.1 ATÉ XXX.255.255.255\nR: \033[m' RES
     if [[ "${RES,,}" == @(s|sim) ]]; then
       FullRange && OpenLog
@@ -254,8 +257,8 @@ Rede() {
     fi
   else
     # Tomada de decisão com responsabilidade de validação de IP
-    if [[ $dns =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-      ip="$dns"
+    if [[ ${dns} =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+      ip="${dns}"
       read -p $'\033[1;31m\nESCANEAR EM MODO FULL-RANGE?\nESTE MODO FAZ UM SCANNER DO XXX.0.0.1 ATÉ XXX.255.255.255.\nR: \033[m' RES
       if [[ "${RES,,}" == @(s|sim) ]]; then
         FullRange && OpenLog
@@ -284,7 +287,7 @@ Ghost() {
       fi ;;
     0) Exit ;;
 
-    *) OptionExit && Retorno ;;
+    *) OptionExit ;;
   esac
 }
 
