@@ -2,20 +2,14 @@
 
 #===============================================================#
 # GHOST, programa de scanner de portas e varredura em rede.
-# Este programa usa de comandos específicos do Nmap para realizar
-# suas tarefas.
+# Este programa usa de comandos específicos do Nmap, Bully e 
+# Reaver para realizar suas tarefas.
 #===============================================================#
 #===============================================================#
 # Autor: Otávio Will
 # Email: <owtechdeveloper@gmail.com>
 # Versão: 2.7
 #===============================================================#
-#======================================================================#
-# Obs: Não foi comentado muitas linhas, pois o programa está modulado
-# por funções. E cada função recebeu o nome mais próximo do que ela é
-# destinada. Sendo assim, qualquer eventual "BUG" que aparecer, poderá
-# ser procurado na respctiva função.
-#======================================================================#
 
 version="Versão: 2.7"
 
@@ -43,12 +37,13 @@ readonly nmapwrite=(
   "Scan de firewall com fragmentos de pacotes"
   "Scan de firewall com MAC spoofing"
   "Scan de host utilizando serviços UDP"
-  "Scan decoys (camufla o ip)")
+  "Scan decoys (camufla o ip)"
+)
 
 #===============================================================#
 # Verifica se o usuário está logado como root
 #===============================================================#
-Checkroot() {
+CheckRoot() {
 
   clear
 
@@ -63,25 +58,24 @@ Checkroot() {
 }
 
 #=================================================================#
-# Verifica se existem dependências, e instalando-as se nescessário
+# Verifica se existem dependências, e instala se nescessário.
 #=================================================================#
-Checkdependencias() {
+CheckDependencies() {
 
-  deps=("nmap" "ipcalc" "net-tools" "git" "pixiewps"
-    "build-essential" "libpcap-dev" "aircrack-ng" "reaver" "ethtool")
+  deps=(
+    "nmap" "ipcalc" "net-tools" "git" "pixiewps"
+    "build-essential" "libpcap-dev" "aircrack-ng" "reaver" "ethtool"
+  )
 
   declare -a missing
 
   for d in "${!deps[@]}"; do
-
     [[ -z $(sudo dpkg -l "${deps[$d]}" 2>/dev/null) ]] && missing+=(${deps[$d]})
-
   done
 
   if [[ ${#missing[@]} -ne 0 ]]; then
     echo -e ${Rd}"\n\tFALTAM AS DEPENDÊNCIAS:${Fm}${Cy} ${missing[@]}"${Fm}
     read -p $'\033[1;31m\n\t\tINSTALAR AS DEPENDÊNCIAS?\nR: \033[m' RES
-
     if [[ "${RES,,}" == @(s|sim) ]]; then
       sudo apt update && sudo apt install ${missing[@]} -y
       echo -e ${Vd}"\n\t\tTODAS AS DEPENDÊNCIAS FORAM INSTALADAS"${Fm}
@@ -92,7 +86,6 @@ Checkdependencias() {
     else
       echo -e ${Rd}"\n\t\tNÃO FOI POSSÍVEL INSTALAR AS DEPENDÊNCIAS ${missing[@]}"${Fm}
     fi
-
   else
     echo -e ${Vd}"\n\t\tNÃO HÁ DEPENDÊNCIAS A SEREM INSTALADAS"${Fm}
     sleep 1s
@@ -104,13 +97,15 @@ Retorno() {
   echo -e ${Rd}"\nRETORNAR PARA: NMAP${Fm}${Br} [N]${Fm}${Rd} WIFICRACK${Fm}${Br} [W]${Fm} ${Rd} MENU${Fm}${Br} [M]${Fm}"
   read -p $'\033[1;37mR: \033[m' RES
   case $RES in
-  n | N)
-    LAN=($(sudo ifconfig | grep 'wl' | awk '{print $1}'))
-    sudo airmon-ng stop ${LAN%%:*} >/dev/null
-    echo -e ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuNmap
+    n | N)
+      LAN=($(sudo ifconfig | grep 'wl' | awk '{print $1}'))
+      sudo airmon-ng stop ${LAN%%:*} >/dev/null
+      echo -e ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuNmap 
     ;;
-  w | W) echo -e ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuWificrack ;;
-  m | M) echo -e ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && Menu ;;
+    w | W) echo -e ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuWificrack 
+    ;;
+    m | M) echo -e ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && Menu 
+    ;;
   esac
 }
 
@@ -184,7 +179,7 @@ NmapScanner() {
 
   echo -e ${Rd}"\n======================================================"${Fm}
 
-  Nmap $dig >>ghost-log.txt
+  Nmap $dig >> ghost-log.txt
 }
 
 Mask() {
@@ -222,7 +217,6 @@ FullRange() {
       IP=$"$C1.${C2//*/$X}.${C3//*/$Y}.${C4//*/$Z}"
       NmapScanner $IP continue
     done
-
     break
   done
 }
@@ -279,13 +273,11 @@ Ghost() {
   case $dig in
 
   [1-9] | [0-9][0-9]) # Metodo usado para suprir a nescessidade de colocar numero ao lado de número.
-
     echo -e ${Rd}"\nESCANEAR IP OU REDE?${Fm}${Br} [I/R]"${Fm}
     echo -e ${Rd}"\nTODAS AS SAÍDAS SERÃO DIRECIONADAS PARA O ARQUIVO:${Fm}${Cy} ghost-log.txt"${Fm}
     read -p $'\033[1;37mR: \033[m' RES
     [[ "$RES" == @(i|I) ]] && IPF $dig || [[ "$RES" == @(r|R) ]] && Rede $dig || OptionExit
     ;;
-
   0) Exit ;;
 
   *) OptionExit && Retorno ;;
@@ -350,9 +342,7 @@ Airmon() {
   echo -e ${Rd}"\nPLACAS DE REDE WIRELESS DISPONÍVEIS:\n"${Fm}
 
   for X in "${!LAN[@]}"; do
-
     echo -e ${Rd}"[$X]${Fm} ${Vd}${LAN[$X]%%:*}"${Fm}
-
   done
 
   read -p $'\033[31;1m\nDIGITE O NÚMERO DA PLACA ESCOLHIDA R: \033[m' P
@@ -472,7 +462,7 @@ Menu() {
     fi
   done
 }
-Checkroot
-Checkdependencias
+CheckRoot
+CheckDependencies
 Menu
 #=============================================================[FIM]==================================================================#
