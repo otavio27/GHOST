@@ -96,7 +96,7 @@ Retorno() {
 
   echo -e ${Rd}"\nRETORNAR PARA: NMAP${Fm}${Br} [N]${Fm}${Rd} WIFICRACK${Fm}${Br} [W]${Fm} ${Rd} MENU${Fm}${Br} [M]${Fm}"
   read -p $'\033[1;37mR: \033[m' RES
-  case $RES in
+  case ${RES} in
     n | N)
       LAN=($(sudo ifconfig | grep 'wl' | awk '{print $1}'))
       sudo airmon-ng stop ${LAN%%:*} >/dev/null
@@ -120,7 +120,7 @@ Exit() {
   if [[ -e ghost-log.txt ]]; then
     echo -e ${Rd}"\nEXCLUIR O ARQUIVO ${Cy}ghost-log.txt${Fm}${Rd}?${Fm}${Rd} [${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
     read -p $'\033[1;37mR: \033[m' RES
-    if [[ "$RES" == @(s|S) ]]; then
+    if [[ "${RES}" == @(s|S) ]]; then
       sudo rm -rf ghost-log.txt && echo -e ${Vd}"\nARQUIVO EXCLUIDO COM SUCESSO!"${Fm} && Thanks
     else
       Thanks
@@ -134,7 +134,7 @@ OptionExit() {
 
   echo -e ${Rd}"\nDESEJA SAIR DO GHOST?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
-  [[ "$RES" == @(n|N) ]] && Retorno || Exit
+  [[ "${RES}" == @(n|N) ]] && Retorno || Exit
 }
 
 OpenLog() {
@@ -145,12 +145,12 @@ OpenLog() {
   [[ "${RES,,}" == @(s|sim) ]] && cat ghost-log.txt || Retorno
   echo -e ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
-  [[ "$RES" == @(s|S) ]] && Retorno || Exit
+  [[ "${RES}" == @(s|S) ]] && Retorno || Exit
 }
 
 Nmap() {
 
-  case $dig in
+  case ${dig} in
     1) nmap -f -sS -vv -T4 -Pn $IP | grep "Discovered open port" 2>&- ;;
     2) nmap -O -vv -Pn $IP | grep "OS CPE:" 2>&- ;;
     3) nmap -sS -sV -vv -O -T4 -Pn $IP | grep -E "Discovered open port|OS CPE:|OS details:" 2>&- ;;
@@ -179,20 +179,20 @@ NmapScanner() {
 
   echo -e ${Rd}"\n======================================================"${Fm}
 
-  Nmap $dig >> ghost-log.txt
+  Nmap ${dig} >> ghost-log.txt
 }
 
 Mask() {
 
   mask=$(ipcalc --class $ip)
 
-  if [[ "$mask" = "invalid" ]]; then
+  if [[ "${mask}" = "invalid" ]]; then
     echo -e ${Rd}"\nO [ ${Fm}${Br}${ip}${Fm}${Rd} ] É UM IP INVÁLIDO!!!"${Fm}
     read -p $'\033[1;31m\nDIGITE UM IP VÁLIDO!.\nR: \033[m' ip && Mask
   else
-    case $mask in
+    case ${mask} in
       [0-9] | [0-9][0-9]) # Metodo usado para suprir a nescessidade de colocar número ao lado de número.
-        IP="${ip}/$mask" && NmapScanner $IP ;;
+        IP="${ip}/${mask}" && NmapScanner $IP ;;
       *) OptionExit ;;
     esac
   fi
@@ -223,16 +223,16 @@ FullRange() {
 
 IPF() {
 
-  [[ $dig -eq 4 ]] && read -p $'\033[1;31m\nDIGITE A PORTA OU PORTAS. Ex: 22 ou 22,80,443\nR: \033[m' port
+  [[ ${dig} -eq 4 ]] && read -p $'\033[1;31m\nDIGITE A PORTA OU PORTAS. Ex: 22 ou 22,80,443\nR: \033[m' port
   read -p $'\033[1;31m\nDIGITE SOMENTE O IP, OU URL.\nR: \033[m' dns
 
   if [[ "$dns" =~ ^[[:alpha:]] ]]; then
     # Converte toda a URL passada, em IP
-    read _ _ _ IP <<<$(host $dns | grep "address") && NmapScanner $dig && OpenLog
+    read _ _ _ IP <<<$(host $dns | grep "address") && NmapScanner ${dig} && OpenLog
   else
     # Tomada de decisão com responsabilidade de validação de IP
     if [[ $dns =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-      IP="$dns" && NmapScanner $dig && OpenLog
+      IP="$dns" && NmapScanner ${dig} && OpenLog
     else
       echo -e ${Rd}"\nO [ ${Fm}${Br}${dns}${Fm}${Rd} ] É UM IP INVÁLIDO!!!"${Fm} && IPF
     fi
@@ -242,7 +242,7 @@ IPF() {
 Rede() {
 
   read -p $'\033[1;31m\nDIGITE O IP OU URL.\nR: \033[m' dns
-  [[ $dig -eq 4 ]] && read -p $'\033[1;31m\nDIGITE A PORTA OU PORTAS. Ex: 22 ou 22,80,443\nR: \033[m' port
+  [[ ${dig} -eq 4 ]] && read -p $'\033[1;31m\nDIGITE A PORTA OU PORTAS. Ex: 22 ou 22,80,443\nR: \033[m' port
 
   if [[ "$dns" =~ ^[[:alpha:]] ]]; then
     read _ _ _ ip <<<$(host $dns | grep "address") # Converte toda a URL passada, em IP
@@ -270,17 +270,21 @@ Rede() {
 
 Ghost() {
 
-  case $dig in
+  case ${dig} in
 
-  [1-9] | [0-9][0-9]) # Metodo usado para suprir a nescessidade de colocar numero ao lado de número.
-    echo -e ${Rd}"\nESCANEAR IP OU REDE?${Fm}${Br} [I/R]"${Fm}
-    echo -e ${Rd}"\nTODAS AS SAÍDAS SERÃO DIRECIONADAS PARA O ARQUIVO:${Fm}${Cy} ghost-log.txt"${Fm}
-    read -p $'\033[1;37mR: \033[m' RES
-    [[ "$RES" == @(i|I) ]] && IPF $dig || [[ "$RES" == @(r|R) ]] && Rede $dig || OptionExit
-    ;;
-  0) Exit ;;
+    [1-9] | [0-9][0-9]) # Metodo usado para suprir a nescessidade de colocar numero ao lado de número.
+      if [[ ${dig} -ge 13 ]]; then
+        echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!"${Fim}
+        sleep 2s && MenuNmap
+      else
+        echo -e ${Rd}"\nESCANEAR IP OU REDE?${Fm}${Br} [I/R]"${Fm}
+        echo -e ${Rd}"\nTODAS AS SAÍDAS SERÃO DIRECIONADAS PARA O ARQUIVO:${Fm}${Cy} ghost-log.txt"${Fm}
+        read -p $'\033[1;37mR: \033[m' RES
+        [[ "${RES}" == @(i|I) ]] && IPF ${dig} || [[ "${RES}" == @(r|R) ]] && Rede ${dig} || OptionExit
+      fi ;;
+    0) Exit ;;
 
-  *) OptionExit && Retorno ;;
+    *) OptionExit && Retorno ;;
   esac
 }
 
@@ -309,15 +313,13 @@ MenuNmap() {
 
     read -p $'\033[37;1mR: \033[m' dig
 
-    if [[ "$dig" =~ ^[[:alpha:]] ]]; then
-      echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!\nSÓ É ACEITO NÚMEROS!\n\n${Br}RETORNAR AO NMAP?${Fm} \
-      ${Rd}[${Fm}${Br}S/N${Fm}${Rd}]\n${Fm}R: ${Fm}"
-      read inicio
-      [[ "${inicio,,}" == @(s|sim) ]] && MenuNmap
+    if [[ "${dig}" =~ ^[[:alpha:]] ]]; then
+      echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!${Fim}\n${Vd}SÓ É ACEITO NÚMEROS!"${FIM}
+      sleep 2s && MenuNmap
     else
-      case $dig in
-      0) Menu ;;
-      *) Ghost $dig ;;
+      case ${dig} in
+        0) Menu ;;
+        *) Ghost ${dig} ;;
       esac
     fi
   done
@@ -376,7 +378,7 @@ Bully() {
   bully ${LAN[$P]%%:*}mon -b${MACS[$I]} -c${MACS[$I + 1]} -d -A -F -B -l 5
   echo -e ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
-  [[ "$RES" == @(s|S) ]] && Retorno || AirmonStop ${LAN[$P]%%*}mon
+  [[ "${RES}" == @(s|S) ]] && Retorno || AirmonStop ${LAN[$P]%%*}mon
 }
 
 Reaver() {
@@ -386,7 +388,7 @@ Reaver() {
   reaver -c${MACS[$I + 1]} -b${MACS[$I]} -vv -i ${LAN[$P]%%:*}mon -L -Z -K 1
   echo -e ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
-  [[ "$RES" == @(s|S) ]] && Retorno || AirmonStop ${LAN[$P]%%:*}mon
+  [[ "${RES}" == @(s|S) ]] && Retorno || AirmonStop ${LAN[$P]%%:*}mon
 }
 
 MenuWificrack() {
@@ -410,16 +412,16 @@ MenuWificrack() {
 
     read -p $'\033[37;1mR: \033[m' dig
 
-    if [[ "$dig" =~ ^[[:alpha:]] ]]; then
-      echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!\nSÓ É ACEITO NÚMEROS!\n\n${Br}RETORNAR AO WIFICRACK?${Fm} \
-      ${Rd}[${Fm}${Br}S/N${Fm}${Rd}]\n${Fm}R: ${Fm}"
-      read inicio
-      [[ "${inicio,,}" == @(s|sim) ]] && MenuWificrack || Exit
+    if [[ "${dig}" =~ ^[[:alpha:]] ]]; then
+      echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!${Fim}\n${Vd}SÓ É ACEITO NÚMEROS!"${FIM}
+      sleep 2s && MenuWificrack 
     else
-      case $dig in
-      0) Menu ;;
-      1) Reaver ;;
-      2) Bully ;;
+      case ${dig} in
+        0) Menu ;;
+        1) Reaver ;;
+        2) Bully ;;
+        *) echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!"${Fim}
+        sleep 2s && MenuWificrack ;;
       esac
     fi
   done
@@ -448,16 +450,16 @@ Menu() {
 
     read -p $'\033[37;1mR: \033[m' dig
 
-    if [[ "$dig" =~ ^[[:alpha:]] ]]; then
-      echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!\nSÓ É ACEITO NÚMEROS!\n\n${Br}RETORNAR AO INICIO?${Fm} \
-      ${Rd}[${Fm}${Br}S/N${Fm}${Rd}]\n${Fm}R: ${Fm}"
-      read inicio
-      [[ "${inicio,,}" == @(s|sim) ]] && Retorno || Exit
+    if [[ "${dig}" =~ ^[[:alpha:]] ]]; then
+     echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!${Fim}\n${Vd}SÓ É ACEITO NÚMEROS!"${FIM}
+      sleep 2s && Menu 
     else
-      case $dig in
-      0) Exit ;;
-      1) MenuNmap ;;
-      2) MenuWificrack ;;
+      case ${dig} in
+        0) Exit ;;
+        1) MenuNmap ;;
+        2) MenuWificrack ;;
+        *) echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!"${Fim}
+        sleep 2s && Menu ;;
       esac
     fi
   done
