@@ -47,11 +47,11 @@ CheckRoot() {
   clear
 
   if [[ $EUID -ne 0 ]]; then
-    echo -e ${Vd}"\nPARA EXECUTAR ESSE PROGRAMA, RODE${Fm} ${Rd}sudo ./ghost"${Fm}
-    echo -e ${Red}"\nNÃO É POSSIVEL EXECUTAR SEM ESTAR COMO ROOT..."${Fm}
+    printf "%b\n" ${Vd}"\nPARA EXECUTAR ESSE PROGRAMA, RODE${Fm} ${Rd}sudo ./ghost"${Fm}
+    printf "%b\n" ${Red}"\nNÃO É POSSIVEL EXECUTAR SEM SUDO..."${Fm}
     sleep 2s && exit 1
   else
-    echo -e ${Rd}"\n\t\t======[${Fm}${Br}STARTANDO O PROGRAMA AGUARDE!${Fm}${Rd}]======"${Fm}
+    printf "%b\n" ${Rd}"\n\t\t======[${Fm}${Br}STARTANDO O PROGRAMA AGUARDE!${Fm}${Rd}]======"${Fm}
     sleep 1s
   fi
 }
@@ -73,65 +73,65 @@ CheckDependencies() {
   done
 
   if [[ ${#missing[@]} -ne 0 ]]; then
-    echo -e ${Rd}"\n\tFALTAM AS DEPENDÊNCIAS:${Fm}${Cy} ${missing[@]}"${Fm}
+    printf "%b\n" ${Rd}"\n\tFALTAM AS DEPENDÊNCIAS:${Fm}${Cy} ${missing[@]}"${Fm}
     read -p $'\033[1;31m\n\t\tINSTALAR AS DEPENDÊNCIAS?\nR: \033[m' RES
     if [[ "${RES,,}" == @(s|sim) ]]; then
       sudo apt update && sudo apt install ${missing[@]} -y
-      echo -e ${Vd}"\n\t\tTODAS AS DEPENDÊNCIAS FORAM INSTALADAS"${Fm}
+      printf "%b\n" ${Vd}"\n\t\tTODAS AS DEPENDÊNCIAS FORAM INSTALADAS"${Fm}
       sleep 1s && Retorno
     elif [[ "${RES,,}" == @(n|não) ]]; then
-      echo -e ${Rd}"\n\t\tNÃO É POSSÍVEL PROSSEGUIR SEM INSTALAR AS DEPENDÊNCIAS"${Fm}
+      printf "%b\n" ${Rd}"\n\t\tNÃO É POSSÍVEL PROSSEGUIR SEM INSTALAR AS DEPENDÊNCIAS"${Fm}
       sleep 3s && Thanks
     else
-      echo -e ${Rd}"\n\t\tNÃO FOI POSSÍVEL INSTALAR AS DEPENDÊNCIAS ${missing[@]}"${Fm}
+      printf "%b\n" ${Rd}"\n\t\tNÃO FOI POSSÍVEL INSTALAR AS DEPENDÊNCIAS ${missing[@]}"${Fm}
     fi
   else
-    echo -e ${Vd}"\n\t\tNÃO HÁ DEPENDÊNCIAS A SEREM INSTALADAS"${Fm}
+    printf "%b\n" ${Vd}"\n\t\tNÃO HÁ DEPENDÊNCIAS A SEREM INSTALADAS"${Fm}
     sleep 1s
   fi
 }
 
 Retorno() {
 
-  echo -e ${Rd}"\nRETORNAR PARA: NMAP${Fm}${Br} [N]${Fm}${Rd} WIFICRACK${Fm}${Br} [W]${Fm} ${Rd} MENU${Fm}${Br} [M]${Fm}"
+  printf "%b\n" ${Rd}"\nRETORNAR PARA: NMAP${Fm}${Br} [N]${Fm}${Rd} WIFICRACK${Fm}${Br} [W]${Fm} ${Rd} MENU${Fm}${Br} [M]${Fm}"
   read -p $'\033[1;37mR: \033[m' RES
   case ${RES} in
     n | N)
       LAN=($(sudo ifconfig | grep 'wl' | awk '{print $1}'))
       sudo airmon-ng stop ${LAN%%:*} >/dev/null
-      echo -e ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuNmap 
+      printf "%b\n" ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuNmap 
     ;;
-    w | W) echo -e ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuWificrack 
+    w | W) printf "%b\n" ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuWificrack 
     ;;
-    m | M) echo -e ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && Menu 
+    m | M) printf "%b\n" ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && Menu 
     ;;
   esac
 }
 
 Thanks() {
 
-  echo -e ${Rd}"\nSAINDO...${Vd}\n\nOBRIGADO POR USAR O GHOST..."${Fm}
+  printf "%b\n" ${Rd}"\nSAINDO...${Vd}\n\nOBRIGADO POR USAR O GHOST..."${Fm}
   sleep 2s && clear && exit
 }
 
 Exit() {
 
   if [[ -e ghost-log.txt ]]; then
-    echo -e ${Rd}"\nEXCLUIR O ARQUIVO ${Cy}ghost-log.txt${Fm}${Rd}?${Fm}${Rd} [${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
+    printf "%b\n" ${Rd}"\nEXCLUIR O ARQUIVO ${Cy}ghost-log.txt${Fm}${Rd}?${Fm}${Rd} [${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
     read -p $'\033[1;37mR: \033[m' RES
     if [[ "${RES}" == @(s|S) ]]; then
-      sudo rm -rf ghost-log.txt && echo -e ${Vd}"\nARQUIVO EXCLUIDO COM SUCESSO!"${Fm} && Thanks
+      sudo rm -rf ghost-log.txt && printf "%b\n" ${Vd}"\nARQUIVO EXCLUIDO COM SUCESSO!"${Fm} && Thanks
     else
       Thanks
     fi
   else
-    echo -e ${Vd}"\nNÃO HÁ ARQUIVO DE LOG A SER EXCLUIDO!"${Fm} && Thanks
+    printf "%b\n" ${Vd}"\nNÃO HÁ ARQUIVO DE LOG A SER EXCLUIDO!"${Fm} && Thanks
   fi
 }
 
 OptionExit() {
 
-  echo -e ${Rd}"\nDESEJA SAIR DO GHOST?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
+  printf "%b\n" ${Rd}"\nDESEJA SAIR DO GHOST?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
   [[ "${RES}" == @(n|N) ]] && Retorno || Exit
 }
@@ -139,10 +139,10 @@ OptionExit() {
 OpenLog() {
 
   tput cnorm -- normal
-  echo -ne "\n${Rd}ABRIR O ARQUIVO${Fm}${Cy} ghost-log.txt?${Fm} ${Rd}[${Fm}${Br}S/N${Rd}]${Fm}\n${Fm}R: ${Fm}"
+  printf "%b\n" "${Rd}\nABRIR O ARQUIVO${Fm}${Cy} ghost-log.txt?${Fm} ${Rd}[${Fm}${Br}S/N${Rd}]${Fm}\n${Fm}R: ${Fm}"
   read RES
   [[ "${RES,,}" == @(s|sim) ]] && cat ghost-log.txt || Retorno
-  echo -e ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
+  printf "%b\n" ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
   [[ "${RES}" == @(s|S) ]] && Retorno || Exit
 }
@@ -170,17 +170,17 @@ NmapScanner() {
   clear
   tput civis -- invisible
 
-  echo -e ${Rd}"\n==========================[${Fm}${Br}GHOST${Fm}${Rd}]========================="${Fm}
+  printf "%b\n" ${Rd}"\n==========================[${Fm}${Br}GHOST${Fm}${Rd}]========================="${Fm}
   if [[ ${dns} =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-    echo -e ${Rd}"\nDISPARANDO SCANNER NO ALVO: >>> [ "${FM}${Cy}"${IP}"${Fm}${Rd}" ]"${Fm}
-    echo -e ${Vd}"\nESTE PROCESSO PODE DEMORAR, AGUARDE ATÉ O FIM."${Fm}
+    printf "%b\n" ${Rd}"\nDISPARANDO SCANNER NO ALVO: >>> [ "${FM}${Cy}"${IP}"${Fm}${Rd}" ]"${Fm}
+    printf "%b\n" ${Vd}"\nESTE PROCESSO PODE DEMORAR, AGUARDE ATÉ O FIM."${Fm}
   else
-    echo -e ${Rd}"\nDNS INFORMADO: >>> [ "${FM}${Cy}"${dns}"${Fm}${Rd}" ]"${Fm}
-    echo -e ${Rd}"\nDISPARANDO SCANNER NO IP DO ALVO: >>> [ "${FM}${Cy}"${IP}"${Fm}${Rd}" ]"${Fm}
-    echo -e ${Vd}"\nESTE PROCESSO PODE DEMORAR, AGUARDE ATÉ O FIM."${Fm}
+    printf "%b\n" ${Rd}"\nDNS INFORMADO: >>> [ "${FM}${Cy}"${dns}"${Fm}${Rd}" ]"${Fm}
+    printf "%b\n" ${Rd}"\nDISPARANDO SCANNER NO IP DO ALVO: >>> [ "${FM}${Cy}"${IP}"${Fm}${Rd}" ]"${Fm}
+    printf "%b\n" ${Vd}"\nESTE PROCESSO PODE DEMORAR, AGUARDE ATÉ O FIM."${Fm}
   fi
 
-  echo -e ${Rd}"\n=========================================================="${Fm}
+  printf "%b\n" ${Rd}"\n=========================================================="${Fm}
 
   Nmap ${dig} >> ghost-log.txt
 }
@@ -190,7 +190,7 @@ Mask() {
   mask=$(ipcalc --class ${ip})
 
   if [[ "${mask}" = "invalid" ]]; then
-    echo -e ${Rd}"\nO [ ${Fm}${Br}${ip}${Fm}${Rd} ] É UM IP INVÁLIDO!!!"${Fm}
+    printf "%b\n" ${Rd}"\nO [ ${Fm}${Br}${ip}${Fm}${Rd} ] É UM IP INVÁLIDO!!!"${Fm}
     read -p $'\033[1;31m\nDIGITE UM IP VÁLIDO!.\nR: \033[m' ip && Mask
   else
     case ${mask} in
@@ -237,7 +237,7 @@ IPF() {
     if [[ ${dns} =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
       IP="${dns}" && NmapScanner ${dig} && OpenLog
     else
-      echo -e ${Rd}"\nO [ ${Fm}${Br}${dns}${Fm}${Rd} ] É UM IP INVÁLIDO!!!"${Fm} && IPF
+      printf "%b\n" ${Rd}"\nO [ ${Fm}${Br}${dns}${Fm}${Rd} ] É UM IP INVÁLIDO!!!"${Fm} && IPF
     fi
   fi
 }
@@ -266,7 +266,7 @@ Rede() {
         Mask
       fi
     else
-      echo -e ${Rd}"\nO [ ${Fm}${Br}${dns}${Fm}${Rd} ] É UM IP INVÁLIDO!!!"${Fm} && Rede
+      printf "%b\n" ${Rd}"\nO [ ${Fm}${Br}${dns}${Fm}${Rd} ] É UM IP INVÁLIDO!!!"${Fm} && Rede
     fi
   fi
 }
@@ -277,11 +277,11 @@ Ghost() {
 
     [1-9] | [0-9][0-9]) # Metodo usado para suprir a nescessidade de colocar numero ao lado de número.
       if [[ ${dig} -ge 13 ]]; then
-        echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!"${Fim}
+        printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!"${Fim}
         sleep 2s && MenuNmap
       else
-        echo -e ${Rd}"\nESCANEAR IP OU REDE?${Fm}${Br} [I/R]"${Fm}
-        echo -e ${Rd}"\nTODAS AS SAÍDAS SERÃO DIRECIONADAS PARA O ARQUIVO:${Fm}${Cy} ghost-log.txt"${Fm}
+        printf "%b\n" ${Rd}"\nESCANEAR IP OU REDE?${Fm}${Br} [I/R]"${Fm}
+        printf "%b\n" ${Rd}"\nTODAS AS SAÍDAS SERÃO DIRECIONADAS PARA O ARQUIVO:${Fm}${Cy} ghost-log.txt"${Fm}
         read -p $'\033[1;37mR: \033[m' RES
         [[ "${RES}" == @(i|I) ]] && IPF ${dig} || [[ "${RES}" == @(r|R) ]] && Rede ${dig} || OptionExit
       fi ;;
@@ -296,28 +296,28 @@ MenuNmap() {
   clear
   while true; do
 
-    echo -e ${Rd}"==============================================================================\n"${Fm}
+    printf "%b\n" ${Rd}"==============================================================================\n"${Fm}
 
     for X in "${!NMAP[@]}"; do
-      echo -e ${Vd}"\t\t\t${NMAP[$X]}"${Fm}
-      sleep 0.1s
-    done
-
-    echo -e ${Rd}"\n=============================================================================="${Fm}
-
-    for N in "${!nmapwrite[@]}"; do
-      echo -e ${Rd}" [$N]"${Fm} ${Br}"${nmapwrite[$N]}"${Fm}
+      printf "%b\n" ${Vd}"\t\t\t${NMAP[$X]}"${Fm}
       sleep 0.05s
     done
 
-    echo -e ${Rd}"=============================================================================="${Fm}
+    printf "%b\n" ${Rd}"\n=============================================================================="${Fm}
 
-    echo -e ${Red}"ESCOLHA UMA DAS OPÇÕES DO MENU ACIMA"${Fm}
+    for N in "${!nmapwrite[@]}"; do
+      printf "%b" ${Rd}"\n [$N]${Fm}${Br} ${nmapwrite[$N]}"${Fm}
+      sleep 0.05s
+    done
+
+    printf "%b\n" ${Rd}"\n=============================================================================="${Fm}
+
+    printf "%b\n" ${Red}"ESCOLHA UMA DAS OPÇÕES DO MENU ACIMA"${Fm}
 
     read -p $'\033[37;1mR: \033[m' dig
 
     if [[ "${dig}" =~ ^[[:alpha:]] ]]; then
-      echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!${Fim}\n${Vd}SÓ É ACEITO NÚMEROS!"${FIM}
+      printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!${Fim}\n${Vd}SÓ É ACEITO NÚMEROS!"${FIM}
       sleep 2s && MenuNmap
     else
       case ${dig} in
@@ -331,7 +331,7 @@ MenuNmap() {
 
 AirmonStop() {
 
-  echo -e ${Vd}"DESABILITANDO A PLACA DE REDE DO MODO MONITOR"${Fm}
+  printf "%b\n" ${Vd}"DESABILITANDO A PLACA DE REDE DO MODO MONITOR"${Fm}
   sleep 2s
   sudo airmon-ng stop ${LAN[$P]%%:*}mon
   Thanks
@@ -342,20 +342,20 @@ Airmon() {
   clear
   LAN=($(sudo ifconfig | grep 'wl' | awk '{print $1}'))
 
-  echo -e ${Rd}"\nBUSCANDO PLACAS DE REDE WIRELESS..."${Fm}
+  printf "%b\n" ${Rd}"\nBUSCANDO PLACAS DE REDE WIRELESS..."${Fm}
   sleep 2s
-  echo -e ${Rd}"\nPLACAS DE REDE WIRELESS DISPONÍVEIS:\n"${Fm}
+  printf "%b\n" ${Rd}"\nPLACAS DE REDE WIRELESS DISPONÍVEIS:\n"${Fm}
 
   for X in "${!LAN[@]}"; do
-    echo -e ${Rd}"[$X]${Fm} ${Vd}${LAN[$X]%%:*}"${Fm}
+    printf "%b\n" ${Rd}"[$X]${Fm} ${Vd}${LAN[$X]%%:*}"${Fm}
   done
 
   read -p $'\033[31;1m\nDIGITE O NÚMERO DA PLACA ESCOLHIDA R: \033[m' P
 
-  echo -e ${Rd}"\nCOLOCANDO A PLACA WIFI EM MODO MONITOR"${Fm}
+  printf "%b\n" ${Rd}"\nCOLOCANDO A PLACA WIFI EM MODO MONITOR"${Fm}
   sleep 2s
   sudo airmon-ng start ${LAN[$P]%%:*} >/dev/null && clear
-  echo -e ${Rd}"OBTENDO REDES WIFI DISPONIVEIS, O PROCESSO LEVARÁ ALGUNS SEGUNDOS\n"${Fm}
+  printf "%b\n" ${Rd}"OBTENDO REDES WIFI DISPONIVEIS, O PROCESSO LEVARÁ ALGUNS SEGUNDOS\n"${Fm}
 
 }
 
@@ -364,14 +364,14 @@ Wash() {
   sudo timeout --preserve-status 30 wash -i ${LAN[$P]%%:*}mon | tee MACS.txt
   MACS=($(cat MACS.txt | grep ':' | awk '{print $1" "$2}'))
 
-  echo -e ${Rd}"\nESCOLHA UMA REDE PARA ATAQUE\n"${Fm}
+  printf "%b\n" ${Rd}"\nESCOLHA UMA REDE PARA ATAQUE\n"${Fm}
 
   for ((X = 0; X < ${#MACS[@]}; X = X + 2)); do
-    echo -e ${Rd}"[$X] MAC:${Fm} ${Vd}${MACS[$X]}"${Fm}
+    printf "%b\n" ${Rd}"[$X] MAC:${Fm} ${Vd}${MACS[$X]}"${Fm}
   done
 
   read -p $'\033[31;1m\nDIGITE O ÍNDICE DA REDE ESCOLHIDA R: \033[m' I
-  echo -e ${Cy}"\nESTE PROCESSO PODE DEMORAR VÁRIOS MINUTOS\nAGUARDE O FIM DO PROCESSO...\n"${Fm}
+  printf "%b\n" ${Cy}"\nESTE PROCESSO PODE DEMORAR VÁRIOS MINUTOS\nAGUARDE O FIM DO PROCESSO...\n"${Fm}
 }
 
 Bully() {
@@ -379,7 +379,7 @@ Bully() {
   Airmon
   Wash
   bully ${LAN[$P]%%:*}mon -b${MACS[$I]} -c${MACS[$I + 1]} -d -A -F -B -l 5
-  echo -e ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
+  printf "%b\n" ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
   [[ "${RES}" == @(s|S) ]] && Retorno || AirmonStop ${LAN[$P]%%*}mon
 }
@@ -389,7 +389,7 @@ Reaver() {
   Airmon
   Wash
   reaver -c${MACS[$I + 1]} -b${MACS[$I]} -vv -i ${LAN[$P]%%:*}mon -L -Z -K 1
-  echo -e ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
+  printf "%b\n" ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
   [[ "${RES}" == @(s|S) ]] && Retorno || AirmonStop ${LAN[$P]%%:*}mon
 }
@@ -399,31 +399,31 @@ MenuWificrack() {
   clear
   while true; do
 
-    echo -e ${Rd}"==============================================================================\n"${Fm}
+    printf "%b\n" ${Rd}"==============================================================================\n"${Fm}
 
     for X in "${!WIFI[@]}"; do
-      echo -e ${Cy}"\t${WIFI[$X]}"${Fm}
-      sleep 0.1s
+      printf "%b\n" ${Cy}"\t${WIFI[$X]}"${Fm}
+      sleep 0.05s
     done
 
-    echo -e ${Rd}"\n=============================================================================="${Fm}
-    echo -e ${Rd}" [0]"${Fm}${Br}" Para retornar ao menu principal"${Fm}
-    echo -e ${Rd}" [1]"${Fm}${Br}" Quebra do PIN WPS com REAVER"${Fm}
-    echo -e ${Rd}" [2]"${Fm}${Br}" Quebra do PIN WPS com BULLY"${Fm}
-    echo -e ${Rd}"=============================================================================="${Fm}
-    echo -e ${Red}"ESCOLHA UMA DAS OPÇÕES DO MENU ACIMA"${Fm}
+    printf "%b\n" ${Rd}"\n=============================================================================="${Fm}
+    printf "%b\n" ${Rd}" [0]"${Fm}${Br}" Para retornar ao menu principal"${Fm}
+    printf "%b\n" ${Rd}" [1]"${Fm}${Br}" Quebra do PIN WPS com REAVER"${Fm}
+    printf "%b\n" ${Rd}" [2]"${Fm}${Br}" Quebra do PIN WPS com BULLY"${Fm}
+    printf "%b\n" ${Rd}"=============================================================================="${Fm}
+    printf "%b\n" ${Red}"ESCOLHA UMA DAS OPÇÕES DO MENU ACIMA"${Fm}
 
     read -p $'\033[37;1mR: \033[m' dig
 
     if [[ "${dig}" =~ ^[[:alpha:]] ]]; then
-      echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!${Fim}\n${Vd}SÓ É ACEITO NÚMEROS!"${FIM}
+      printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!${Fim}\n${Vd}SÓ É ACEITO NÚMEROS!"${FIM}
       sleep 2s && MenuWificrack 
     else
       case ${dig} in
         0) Menu ;;
         1) Reaver ;;
         2) Bully ;;
-        *) echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!"${Fim}
+        *) printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!"${Fim}
         sleep 2s && MenuWificrack ;;
       esac
     fi
@@ -435,33 +435,33 @@ Menu() {
   clear
   while true; do
 
-    echo -e ${Rd}"==============================================================================\n"${Fm}
+    printf "%b\n" ${Rd}"==============================================================================\n"${Fm}
 
     for X in "${!GHOST[@]}"; do
-      echo -e ${Rd}"\t\t${GHOST[$X]}"${Fm}
-      sleep 0.1s
+      printf "%b\n" ${Rd}"\t\t${GHOST[$X]}"${Fm}
+      sleep 0.05s
     done
 
-    echo -e ${Cy}"                               ${version}"${Fm}
-    echo -e ${Rd}"=============================================================================="${Fm}
-    echo -e ${Rd}" [0]"${Fm}${Br}" Para sair"${Fm}
-    echo -e ${Rd}" [1]"${Fm}${Br}" Scanner usando o nmap"${Fm}
-    echo -e ${Rd}" [2]"${Fm}${Br}" Quebra de senha wifi com WifiCrack"${Fm}
-    echo -e ${Rd}"=============================================================================="${Fm}
+    printf "%b\n" ${Cy}"                               ${version}"${Fm}
+    printf "%b\n" ${Rd}"=============================================================================="${Fm}
+    printf "%b\n" ${Rd}" [0]"${Fm}${Br}" Para sair"${Fm}
+    printf "%b\n" ${Rd}" [1]"${Fm}${Br}" Scanner usando o nmap"${Fm}
+    printf "%b\n" ${Rd}" [2]"${Fm}${Br}" Quebra de senha wifi com WifiCrack"${Fm}
+    printf "%b\n" ${Rd}"=============================================================================="${Fm}
 
-    echo -e ${Red}"ESCOLHA UMA DAS OPÇÕES DO MENU ACIMA"${Fm}
+    printf "%b\n" ${Red}"ESCOLHA UMA DAS OPÇÕES DO MENU ACIMA"${Fm}
 
     read -p $'\033[37;1mR: \033[m' dig
 
     if [[ "${dig}" =~ ^[[:alpha:]] ]]; then
-     echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!${Fim}\n${Vd}SÓ É ACEITO NÚMEROS!"${FIM}
+      printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!${Fim}\n${Vd}SÓ É ACEITO NÚMEROS!"${FIM}
       sleep 2s && Menu 
     else
       case ${dig} in
         0) Exit ;;
         1) MenuNmap ;;
         2) MenuWificrack ;;
-        *) echo -ne "\n${Rd}OPÇÃO INVÁLIDA!!!"${Fim}
+        *) printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!"${Fim}
         sleep 2s && Menu ;;
       esac
     fi
