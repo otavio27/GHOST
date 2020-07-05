@@ -132,6 +132,7 @@ Exit() {
   else
     printf "%b\n" ${Vd}"\nNÃO HÁ ARQUIVO DE LOG A SER EXCLUIDO!"${Fm} && Thanks
   fi
+  clear
 }
 
 OptionExit() {
@@ -176,7 +177,7 @@ Nmap() {
     11) NMAP_OPT="-sU" ;;
     12) NMAP_OPT="-n -D 192.168.1.1,10.5.1.2,172.1.2.4,3.4.2.1" ;;
   esac
-  nmap $NMAP_OPT $IP -oN $log --stats-every 1s | ProgressBar
+  nmap $NMAP_OPT $IP -oN $log --stats-every 1s 2>&- | ProgressBar
 }
 
 NmapScanner() {
@@ -245,7 +246,12 @@ IPF() {
 
   if [[ "${dns}" =~ ^[[:alpha:]] ]]; then
     # Converte toda a URL passada, em IP
-    read _ _ _ IP <<<$(host ${dns} | grep "address") && NmapScanner ${dig} && OpenLog
+    read _ _ _ IP <<<$(host ${dns} | grep "address") 
+    if [[ ${IP} =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+      NmapScanner ${dig} && OpenLog 
+    else
+      printf "%b\n" ${Rd}"\nO [ ${Fm}${Br}${dns}${Fm}${Rd} ] É INVÁLIDO!!!"${Fm} && IPF
+    fi
   else
     # Tomada de decisão com responsabilidade de validação de IP
     if [[ ${dns} =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
