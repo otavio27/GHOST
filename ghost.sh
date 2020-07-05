@@ -2,7 +2,7 @@
 
 #===============================================================#
 # GHOST, programa de scanner de portas e varredura em rede.
-# Este programa usa de comandos específicos do Nmap, Bully e 
+# Este programa usa de comandos específicos do Nmap, Bully e
 # Reaver para realizar suas tarefas.
 #===============================================================#
 #===============================================================#
@@ -10,7 +10,9 @@
 # Email: <owtechdeveloper@gmail.com>
 #===============================================================#
 
-version="Versão: 2.8"
+readonly APP=$(readlink -f "${BASH_SOURCE[0]}")
+readonly APP_PATH=${APP%/*}
+version="Versão: 2.9"
 
 # Colors
 Br="\033[37;1m"
@@ -21,7 +23,10 @@ Vd="\033[32;1m"
 Cy="\033[0;36m"
 Fm="\e[0m"
 
-source logos.sh
+source "$APP_PATH/logos.sh"
+source "$APP_PATH/ProgressBar.sh"
+
+log="$APP_PATH/ghost-log.txt"
 
 readonly nmapwrite=(
   "Para retornar ao menu principal"
@@ -99,11 +104,11 @@ Retorno() {
     n | N)
       LAN=($(sudo ifconfig | grep 'wl' | awk '{print $1}'))
       sudo airmon-ng stop ${LAN%%:*} >/dev/null
-      printf "%b\n" ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuNmap 
+      printf "%b\n" ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuNmap
     ;;
-    w | W) printf "%b\n" ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuWificrack 
+    w | W) printf "%b\n" ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuWificrack
     ;;
-    m | M) printf "%b\n" ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && Menu 
+    m | M) printf "%b\n" ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && Menu
     ;;
   esac
 }
@@ -116,11 +121,11 @@ Thanks() {
 
 Exit() {
 
-  if [[ -e ghost-log.txt ]]; then
-    printf "%b\n" ${Rd}"\nEXCLUIR O ARQUIVO ${Cy}ghost-log.txt${Fm}${Rd}?${Fm}${Rd} [${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
+  if [[ -e $log ]]; then
+    printf "%b\n" ${Rd}"\nEXCLUIR O ARQUIVO ${Cy}${log##*/}${Fm}${Rd}?${Fm}${Rd} [${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
     read -p $'\033[1;37mR: \033[m' RES
     if [[ "${RES}" == @(s|S) ]]; then
-      sudo rm -rf ghost-log.txt && printf "%b\n" ${Vd}"\nARQUIVO EXCLUIDO COM SUCESSO!"${Fm} && Thanks
+      sudo rm -rf "$log" && printf "%b\n" ${Vd}"\nARQUIVO EXCLUIDO COM SUCESSO!"${Fm} && Thanks
     else
       Thanks
     fi
@@ -139,30 +144,39 @@ OptionExit() {
 OpenLog() {
 
   tput cnorm -- normal
-  printf "%b\n" "${Rd}\nABRIR O ARQUIVO${Fm}${Cy} ghost-log.txt?${Fm} ${Rd}[${Fm}${Br}S/N${Rd}]${Fm}\n${Fm}R: ${Fm}"
+  printf "%b\n" "${Rd}\nABRIR O ARQUIVO${Fm}${Cy} ${log##*/}?${Fm} ${Rd}[${Fm}${Br}S/N${Rd}]${Fm}\n${Fm}R: ${Fm}"
   read RES
-  [[ "${RES,,}" == @(s|sim) ]] && cat ghost-log.txt || Retorno
+  [[ "${RES,,}" == @(s|sim) ]] && cat "$log" || Retorno
   printf "%b\n" ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
   read -p $'\033[1;37mR: \033[m' RES
   [[ "${RES}" == @(s|S) ]] && Retorno || Exit
 }
 
+ProgressBar() {
+#/**
+# * O comando sed formatará a saída de nmap --stats-every para o seguinte:
+# * "[0-9]+ Mensagem de texto"
+#*/
+  sed -u -n -r '/SYN.*About/s/([^:]+): About ([0-9]+).[0-9]+%.*/\2 \1/p' - | "$APP_PATH/ProgressBar.sh"
+}
+
 Nmap() {
 
   case ${dig} in
-    1) nmap -f -sS -vv -T4 -Pn ${IP} | grep "Discovered open port" 2>&- ;;
-    2) nmap -O -vv -Pn ${IP} | grep "OS CPE:" 2>&- ;;
-    3) nmap -sS -sV -vv -O -T4 -Pn ${IP} | grep -E "Discovered open port|OS CPE:|OS details:" 2>&- ;;
-    4) nmap -sS -vv -Pn -p $port ${IP} | grep "Discovered open port" | awk '{print $2, $4, $5, $6}' 2>&- ;;
-    5) nmap --script=mysql-brute ${IP} 2>&- ;;
-    6) nmap -sS -v -Pn -A --open --script=vuln ${IP} 2>&- ;;
-    7) nmap --script=asn-query,whois-ip,ip-geolocation-maxmind ${IP} 2>&- ;;
-    8) nmap -sU -A -PN -n -pU:19,53,123,161 --script=ntp-monlist,dns-recursion,snmp-sysdescr ${IP} 2>&- ;;
-    9) nmap --mtu 32 ${IP} 2>&- ;;
-    10) nmap -v -sT -PN --spoof-mac 0 ${IP} 2>&- ;;
-    11) nmap -sU ${IP} 2>&- ;;
-    12) nmap -n -D 192.168.1.1,10.5.1.2,172.1.2.4,3.4.2.1 ${IP} 2>&- ;;
+    1) NMAP_OPT="-f -sS -vv -T4 -Pn" ;;
+    2) NMAP_OPT="-O -vv -Pn" ;;
+    3) NMAP_OPT="-sS -sV -vv -O -T4 -Pn" ;;
+    4) NMAP_OPT="-sS -vv -Pn -p $port" ;;
+    5) NMAP_OPT="--script=mysql-brute " ;;
+    6) NMAP_OPT="-sS -v -Pn -A --open --script=vuln" ;;
+    7) NMAP_OPT="--script=asn-query,whois-ip,ip-geolocation-maxmind" ;;
+    8) NMAP_OPT="-sU -A -PN -n -pU:19,53,123,161 --script=ntp-monlist,dns-recursion,snmp-sysdescr" ;;
+    9) NMAP_OPT="--mtu 32" ;;
+    10) NMAP_OPT="-v -sT -PN --spoof-mac 0" ;;
+    11) NMAP_OPT="-sU" ;;
+    12) NMAP_OPT="-n -D 192.168.1.1,10.5.1.2,172.1.2.4,3.4.2.1" ;;
   esac
+  nmap $NMAP_OPT $IP -oN $log --stats-every 1s | ProgressBar
 }
 
 NmapScanner() {
@@ -182,7 +196,7 @@ NmapScanner() {
 
   printf "%b\n" ${Rd}"\n=========================================================="${Fm}
 
-  Nmap ${dig} >> ghost-log.txt
+  Nmap ${dig}
 }
 
 Mask() {
@@ -281,7 +295,7 @@ Ghost() {
         sleep 2s && MenuNmap
       else
         printf "%b\n" ${Rd}"\nESCANEAR IP OU REDE?${Fm}${Br} [I/R]"${Fm}
-        printf "%b\n" ${Rd}"\nTODAS AS SAÍDAS SERÃO DIRECIONADAS PARA O ARQUIVO:${Fm}${Cy} ghost-log.txt"${Fm}
+        printf "%b\n" ${Rd}"\nTODAS AS SAÍDAS SERÃO DIRECIONADAS PARA O ARQUIVO:${Fm}${Cy} $log"${Fm}
         read -p $'\033[1;37mR: \033[m' RES
         [[ "${RES}" == @(i|I) ]] && IPF ${dig} || [[ "${RES}" == @(r|R) ]] && Rede ${dig} || OptionExit
       fi ;;
@@ -417,7 +431,7 @@ MenuWificrack() {
 
     if [[ "${dig}" =~ ^[[:alpha:]] ]]; then
       printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!${Fim}\n${Vd}SÓ É ACEITO NÚMEROS!"${FIM}
-      sleep 2s && MenuWificrack 
+      sleep 2s && MenuWificrack
     else
       case ${dig} in
         0) Menu ;;
@@ -455,7 +469,7 @@ Menu() {
 
     if [[ "${dig}" =~ ^[[:alpha:]] ]]; then
       printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!${Fim}\n${Vd}SÓ É ACEITO NÚMEROS!"${FIM}
-      sleep 2s && Menu 
+      sleep 2s && Menu
     else
       case ${dig} in
         0) Exit ;;
