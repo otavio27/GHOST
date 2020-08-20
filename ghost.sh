@@ -13,6 +13,7 @@
 readonly APP=$(readlink -f "${BASH_SOURCE[0]}")
 readonly APP_PATH=${APP%/*}
 version="Versão: 2.9"
+system=$( source /etc/os-release; echo "${NAME%% *}"; )
 
 # Colors
 Br="\033[37;1m"
@@ -154,10 +155,10 @@ OpenLog() {
 }
 
 ProgressBar() {
-#/**
-# * O comando sed formatará a saída de nmap --stats-every para o seguinte:
-# * "[0-9]+ Mensagem de texto"
-#*/
+  #/**
+  # * O comando sed formatará a saída de nmap --stats-every para o seguinte:
+  # * "[0-9]+ Mensagem de texto"
+  #**/
   sed -u -n -r '/SYN.*About/s/([^:]+): About ([0-9]+).[0-9]+%.*/\2 \1/p' - | "$APP_PATH/ProgressBar.sh"
 }
 
@@ -462,7 +463,7 @@ Menu() {
       sleep 0.05s
     done
 
-    printf "%b\n" ${Cy}"                               ${version}"${Fm}
+    printf "%b\n" ${Cy}"                          ${version} OS: ${system}"${Fm}
     printf "%b\n" ${Rd}"=============================================================================="${Fm}
     printf "%b\n" ${Rd}" [0]"${Fm}${Br}" Para sair"${Fm}
     printf "%b\n" ${Rd}" [1]"${Fm}${Br}" Scanner usando o nmap"${Fm}

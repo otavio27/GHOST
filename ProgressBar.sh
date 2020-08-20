@@ -49,7 +49,7 @@ function ProgressBar.print() {
   percento=$((partial*100/total))
   ((percento>100)) && percento=100
   offset=$((cols-${#msg}-10))
-  strcompleto=$(printf "%0.s=" $(eval echo {1..$cols}))
+  strcompleto=$(printf "%0.s#" $(eval echo {1..$cols}))
   strcomplemento=$(printf "%0.s." $(eval echo {1..$cols}))
   intcompleto=$((percento*offset/total))
   intcomplemento=$((offset-intcompleto))
