@@ -6,8 +6,19 @@
 # Reaver para realizar suas tarefas.
 #===============================================================#
 #===============================================================#
+# ghost.sh
+#
 # Autor: Otávio Will
 # Email: <owtechdeveloper@gmail.com>
+# GitHub: https://github.com/otavio27/GHOST
+# License: https://www.gnu.org/licenses/gpl-3.0.txt GNU GENERAL PUBLIC LICENSE
+#================================================================#
+# progressbar.sh
+#
+# Autor: Robson Alexandre
+# Email: <alexandrerobson@gmail.com>
+# GitHub: https://github.com/robsonalexandre/progressbar
+# License: https://www.gnu.org/licenses/gpl-3.0.txt GNU GENERAL PUBLIC LICENSE
 #===============================================================#
 
 readonly APP=$(readlink -f "${BASH_SOURCE[0]}")
@@ -463,7 +474,7 @@ Menu() {
       sleep 0.05s
     done
 
-    printf "%b\n" ${Cy}"                          ${version} OS: ${system}"${Fm}
+    printf "%b\n" ${Cy}"                            ${version}${Fm} ${Br}OS: ${system}"${Fm}
     printf "%b\n" ${Rd}"=============================================================================="${Fm}
     printf "%b\n" ${Rd}" [0]"${Fm}${Br}" Para sair"${Fm}
     printf "%b\n" ${Rd}" [1]"${Fm}${Br}" Scanner usando o nmap"${Fm}

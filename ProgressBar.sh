@@ -1,27 +1,32 @@
-#!/bin/bash
-#/**
-# * @link      https://github.com/robsonalexandre/progressbar
-# * @license   https://www.gnu.org/licenses/gpl-3.0.txt GNU GENERAL PUBLIC LICENSE
-# * @author    Robson Alexandre <alexandrerobson@gmail.com>
-# */
-function ProgressBar.init() {
+#!/usr/bin/env bash
+
+# Colors
+Br="\e[37;1m"
+Cz="\e[0;37m"
+Rd="\e[31;1m"
+Red="\e[31;1;5m"
+Vd="\e[32;1m"
+Cy="\e[0;36m"
+Fm="\e[0m"
+
+ProgressBar.init() {
   shopt -s extglob
   tmp=$(mktemp -d)
   fifo=$(mktemp -u --tmpdir=$tmp)
-#  log=$(mktemp --tmpdir=$tmp)
+  # log=$(mktemp --tmpdir=$tmp)
   mkfifo $fifo
   exec 3<>$fifo
-#  exec 0<&3
+  # exec 0<&3
 
   declare -g bar_txtcolor='\e[0;30m'
   declare -g bar_txtbg='\e[42m'
-  declare -g bar_progresscolor=''
+  declare -g bar_progresscolor='\e[37;1m'
   declare -g bar_progressbg=''
   declare -g bar_nocolor='\e[0m'
   declare -g pid=
 }
 
-function ProgressBar.cleanup() {
+ProgressBar.cleanup() {
   tput el
   echo -e "Concluído [100%]"
   tput cnorm
@@ -29,7 +34,7 @@ function ProgressBar.cleanup() {
 }
 trap ProgressBar.cleanup EXIT KILL
 
-function ProgressBar.setProgress() {
+ProgressBar.setProgress() {
   [ $# -gt 0 ] && echo $@ >&3
 }
 export -f ProgressBar.setProgress
@@ -39,7 +44,7 @@ export -f ProgressBar.setProgress
 # Progress: [ 60%] [#####################..............................]
 # estilo wget
 # linux-4.15.18.tar.xz  45%[============>        ] 44,18M 5,97MB/s eta 7s
-function ProgressBar.print() {
+ProgressBar.print() {
   local partial=$1 \
         total=${2:-100} \
         msg=${3:-Progress:} \
@@ -53,14 +58,14 @@ function ProgressBar.print() {
   strcomplemento=$(printf "%0.s." $(eval echo {1..$cols}))
   intcompleto=$((percento*offset/total))
   intcomplemento=$((offset-intcompleto))
-  printf "\r${bar_txtcolor}${bar_txtbg}%s [%3d%%]${bar_nocolor} [${bar_progresscolor}${bar_progressbg}%.*s%.*s${bar_nocolor}]\r" \
+  printf "\r${bar_txtcolor}${bar_txtbg}%s [%3d%%]${bar_nocolor} ${Cy}[${Fm}${bar_progresscolor}${bar_progressbg}%.*s%.*s${bar_nocolor}${Cy}]${Fm}\r" \
     "$msg" \
     $percento \
     $intcompleto $strcompleto \
     $intcomplemento $strcomplemento
 }
 
-function ProgressBar.run() {
+ProgressBar.run() {
   local msg total=100
   declare -i nivel=0
   declare -i n
@@ -76,7 +81,7 @@ function ProgressBar.run() {
     read -t .1 -u 3       # read espera string: "99|99 String caracteres"
     #n=${n:-$nivel}       # Caso read não receba de fd, continua incrementando de nivel
 
-#   Parsing n vindo de fd
+    # Parsing n vindo de fd
     str=${REPLY##+([0-9 ])}
     msg=${str:-$msg}
 
@@ -84,8 +89,8 @@ function ProgressBar.run() {
     n=${_//[^0-9]}
     nivel=$((n>nivel?n:nivel))
 
-#   Se processo em bg concluir, ou não tiver processo em bg e nivel chegar a 100,
-#     termina barra de progresso
+    # Se processo em bg concluir, ou não tiver processo em bg e nivel chegar a 100,
+    # termina barra de progresso
     ps -p ${pid:-1} > /dev/null 2>&1 || break
     [ -z "$pid" -a "$nivel" == 100 ] && break
 
@@ -94,7 +99,7 @@ function ProgressBar.run() {
   ProgressBar.cleanup
 }
 
-function ProgressBar.main() {
+ProgressBar.main() {
   ProgressBar.init $@
   if [ $# -gt 0 ]; then
     if [ -f "$1" ]; then
