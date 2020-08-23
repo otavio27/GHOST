@@ -98,7 +98,6 @@ ProgressBar.run() {
 
     ProgressBar.print "$nivel" "$total" "$msg"
   done
-  ProgressBar.cleanup
 }
 
 ProgressBar.main() {
