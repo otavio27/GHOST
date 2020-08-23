@@ -76,6 +76,7 @@ ProgressBar.run() {
     nivel=$(((++i%20)?nivel:nivel+1))
 
     read -t .1
+    [[ $? == 1 ]] && break
     [[ $REPLY ]] && ProgressBar.setProgress "$REPLY"
 
     read -t .1 -u 3       # read espera string: "99|99 String caracteres"
@@ -87,12 +88,13 @@ ProgressBar.run() {
 
     : ${REPLY%% *}
     n=${_//[^0-9]}
-    nivel=$((n>nivel?n:nivel))
+    nivel=$((n>0?n:nivel))
+#    nivel=$((n>nivel?n:nivel))
 
     # Se processo em bg concluir, ou não tiver processo em bg e nivel chegar a 100,
     # termina barra de progresso
     ps -p ${pid:-1} > /dev/null 2>&1 || break
-    [ -z "$pid" -a "$nivel" == 100 ] && break
+#    [ -z "$pid" -a "$nivel" == 100 ] && break
 
     ProgressBar.print "$nivel" "$total" "$msg"
   done

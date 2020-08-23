@@ -170,7 +170,7 @@ ProgressBar() {
   # * O comando sed formatará a saída de nmap --stats-every para o seguinte:
   # * "[0-9]+ Mensagem de texto"
   #**/
-  sed -u -n -r '/SYN.*About/s/([^:]+): About ([0-9]+).[0-9]+%.*/\2 \1/p' - | "$APP_PATH/ProgressBar.sh"
+  sed -u -n -r '/About/s/([^:]+): About ([0-9]+).[0-9]+%.*/\2 \1/p' - | "$APP_PATH/ProgressBar.sh"
 }
 
 Nmap() {
@@ -258,9 +258,9 @@ IPF() {
 
   if [[ "${dns}" =~ ^[[:alpha:]] ]]; then
     # Converte toda a URL passada, em IP
-    read _ _ _ IP <<<$(host ${dns} | grep "address") 
+    read _ _ _ IP <<<$(host ${dns} | grep "address")
     if [[ ${IP} =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-      NmapScanner ${dig} && OpenLog 
+      NmapScanner ${dig} && OpenLog
     else
       printf "%b\n" ${Rd}"\nO [ ${Fm}${Br}${dns}${Fm}${Rd} ] É INVÁLIDO!!!"${Fm} && IPF
     fi
