@@ -73,7 +73,7 @@ ProgressBar.run() {
 
   while :; do
 
-    nivel=$(((++i%20)?nivel:nivel+1))
+#    nivel=$(((++i%20)?nivel:nivel+1))
 
     read -t .1
     [[ $? == 1 ]] && break
