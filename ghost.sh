@@ -27,14 +27,15 @@ version="Versão: 2.9"
 system=$( source /etc/os-release; echo "${NAME%% *}"; )
 
 # Colors
-Br="\033[37;1m"
-Cz="\033[0;37m"
-Rd="\033[31;1m"
-Red="\033[31;1;5m"
-Vd="\033[32;1m"
-Cy="\033[0;36m"
+Br="\e[37;1m"
+Cz="\e[0;37m"
+Rd="\e[31;1m"
+Red="\e[31;1;5m"
+Vd="\e[32;1m"
+Cy="\e[0;36m"
 Fm="\e[0m"
 
+source "$APP_PATH/skull.sh"
 source "$APP_PATH/logos.sh"
 source "$APP_PATH/ProgressBar.sh"
 
@@ -57,6 +58,17 @@ readonly nmapwrite=(
 )
 
 #===============================================================#
+# Skull. Animação inicial
+#===============================================================#
+
+for X in ${!SKULL[@]}; do
+  printf "%b\n" "\t\t\t${Red}${SKULL[$X]}${Fm}"
+  sleep 0.05s
+done
+
+sleep 3s
+
+#===============================================================#
 # Verifica se o usuário está logado como root
 #===============================================================#
 CheckRoot() {
@@ -66,7 +78,7 @@ CheckRoot() {
   if [[ $EUID -ne 0 ]]; then
     printf "%b\n" ${Vd}"\nPARA EXECUTAR ESSE PROGRAMA, RODE${Fm} ${Rd}sudo ./ghost"${Fm}
     printf "%b\n" ${Red}"\nNÃO É POSSIVEL EXECUTAR SEM SUDO..."${Fm}
-    sleep 2s && exit 1
+    sleep 1s && exit 1
   else
     printf "%b\n" ${Rd}"\n\t\t======[${Fm}${Br}STARTANDO O PROGRAMA AGUARDE!${Fm}${Rd}]======"${Fm}
     sleep 1s
@@ -91,7 +103,7 @@ CheckDependencies() {
 
   if [[ ${#missing[@]} -ne 0 ]]; then
     printf "%b\n" ${Rd}"\n\tFALTAM AS DEPENDÊNCIAS:${Fm}${Cy} ${missing[@]}"${Fm}
-    read -p $'\033[1;31m\n\t\tINSTALAR AS DEPENDÊNCIAS?\nR: \033[m' RES
+    read -p $'\e[1;31m\n\t\tINSTALAR AS DEPENDÊNCIAS?\nR: \e[m' RES
     if [[ "${RES,,}" == @(s|sim) ]]; then
       sudo apt update && sudo apt install ${missing[@]} -y
       printf "%b\n" ${Vd}"\n\t\tTODAS AS DEPENDÊNCIAS FORAM INSTALADAS"${Fm}
@@ -111,7 +123,7 @@ CheckDependencies() {
 Retorno() {
 
   printf "%b\n" ${Rd}"\nRETORNAR PARA: NMAP${Fm}${Br} [N]${Fm}${Rd} WIFICRACK${Fm}${Br} [W]${Fm} ${Rd} MENU${Fm}${Br} [M]${Fm}"
-  read -p $'\033[1;37mR: \033[m' RES
+  read -p $'\e[1;37mR: \e[m' RES
   case ${RES} in
     n | N)
       LAN=($(sudo ifconfig | grep 'wl' | awk '{print $1}'))
@@ -135,7 +147,7 @@ Exit() {
 
   if [[ -e $log ]]; then
     printf "%b\n" ${Rd}"\nEXCLUIR O ARQUIVO ${Cy}${log##*/}${Fm}${Rd}?${Fm}${Rd} [${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
-    read -p $'\033[1;37mR: \033[m' RES
+    read -p $'\e[1;37mR: \e[m' RES
     if [[ "${RES}" == @(s|S) ]]; then
       sudo rm -rf "$log" && printf "%b\n" ${Vd}"\nARQUIVO EXCLUIDO COM SUCESSO!"${Fm} && Thanks
     else
@@ -150,7 +162,7 @@ Exit() {
 OptionExit() {
 
   printf "%b\n" ${Rd}"\nDESEJA SAIR DO GHOST?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
-  read -p $'\033[1;37mR: \033[m' RES
+  read -p $'\e[1;37mR: \e[m' RES
   [[ "${RES}" == @(n|N) ]] && Retorno || Exit
 }
 
@@ -161,7 +173,7 @@ OpenLog() {
   read RES
   [[ "${RES,,}" == @(s|sim) ]] && cat "$log" || Retorno
   printf "%b\n" ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
-  read -p $'\033[1;37mR: \033[m' RES
+  read -p $'\e[1;37mR: \e[m' RES
   [[ "${RES}" == @(s|S) ]] && Retorno || Exit
 }
 
@@ -218,7 +230,7 @@ Mask() {
 
   if [[ "${mask}" = "invalid" ]]; then
     printf "%b\n" ${Rd}"\nO [ ${Fm}${Br}${ip}${Fm}${Rd} ] É UM IP INVÁLIDO!!!"${Fm}
-    read -p $'\033[1;31m\nDIGITE UM IP VÁLIDO!.\nR: \033[m' ip && Mask
+    read -p $'\e[1;31m\nDIGITE UM IP VÁLIDO!.\nR: \e[m' ip && Mask
   else
     case ${mask} in
       [0-9] | [0-9][0-9]) # Metodo usado para suprir a nescessidade de colocar número ao lado de número.
@@ -253,8 +265,8 @@ FullRange() {
 
 IPF() {
 
-  [[ ${dig} -eq 4 ]] && read -p $'\033[1;31m\nDIGITE A PORTA OU PORTAS. Ex: 22 ou 22,80,443\nR: \033[m' port
-  read -p $'\033[1;31m\nDIGITE SOMENTE O IP, OU URL.\nR: \033[m' dns
+  [[ ${dig} -eq 4 ]] && read -p $'\e[1;31m\nDIGITE A PORTA OU PORTAS. Ex: 22 ou 22,80,443\nR: \e[m' port
+  read -p $'\e[1;31m\nDIGITE SOMENTE O IP, OU URL.\nR: \e[m' dns
 
   if [[ "${dns}" =~ ^[[:alpha:]] ]]; then
     # Converte toda a URL passada, em IP
@@ -276,12 +288,12 @@ IPF() {
 
 Rede() {
 
-  read -p $'\033[1;31m\nDIGITE O IP OU URL.\nR: \033[m' dns
-  [[ ${dig} -eq 4 ]] && read -p $'\033[1;31m\nDIGITE A PORTA OU PORTAS. Ex: 22 ou 22,80,443\nR: \033[m' port
+  read -p $'\e[1;31m\nDIGITE O IP OU URL.\nR: \e[m' dns
+  [[ ${dig} -eq 4 ]] && read -p $'\e[1;31m\nDIGITE A PORTA OU PORTAS. Ex: 22 ou 22,80,443\nR: \e[m' port
 
   if [[ "${dns}" =~ ^[[:alpha:]] ]]; then
     read _ _ _ ip <<<$(host ${dns} | grep "address") # Converte toda a URL passada, em IP
-    read -p $'\033[1;31m\nESCANEAR EM MODO FULL-RANGE?\nESTE MODO FAZ UM SCANNER DO XXX.0.0.1 ATÉ XXX.255.255.255\nR: \033[m' RES
+    read -p $'\e[1;31m\nESCANEAR EM MODO FULL-RANGE?\nESTE MODO FAZ UM SCANNER DO XXX.0.0.1 ATÉ XXX.255.255.255\nR: \e[m' RES
     if [[ "${RES,,}" == @(s|sim) ]]; then
       FullRange && OpenLog
     else
@@ -291,7 +303,7 @@ Rede() {
     # Tomada de decisão com responsabilidade de validação de IP
     if [[ ${dns} =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
       ip="${dns}"
-      read -p $'\033[1;31m\nESCANEAR EM MODO FULL-RANGE?\nESTE MODO FAZ UM SCANNER DO XXX.0.0.1 ATÉ XXX.255.255.255.\nR: \033[m' RES
+      read -p $'\e[1;31m\nESCANEAR EM MODO FULL-RANGE?\nESTE MODO FAZ UM SCANNER DO XXX.0.0.1 ATÉ XXX.255.255.255.\nR: \e[m' RES
       if [[ "${RES,,}" == @(s|sim) ]]; then
         FullRange && OpenLog
       else
@@ -314,7 +326,7 @@ Ghost() {
       else
         printf "%b\n" ${Rd}"\nESCANEAR IP OU REDE?${Fm}${Br} [I/R]"${Fm}
         printf "%b\n" ${Rd}"\nTODAS AS SAÍDAS SERÃO DIRECIONADAS PARA O ARQUIVO:${Fm}${Cy} $log"${Fm}
-        read -p $'\033[1;37mR: \033[m' RES
+        read -p $'\e[1;37mR: \e[m' RES
         [[ "${RES}" == @(i|I) ]] && IPF ${dig} || [[ "${RES}" == @(r|R) ]] && Rede ${dig} || OptionExit
       fi ;;
     0) Exit ;;
@@ -346,7 +358,7 @@ MenuNmap() {
 
     printf "%b\n" ${Red}"ESCOLHA UMA DAS OPÇÕES DO MENU ACIMA"${Fm}
 
-    read -p $'\033[37;1mR: \033[m' dig
+    read -p $'\e[37;1mR: \e[m' dig
 
     if [[ "${dig}" =~ ^[[:alpha:]] ]]; then
       printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!${Fim}\n${Vd}SÓ É ACEITO NÚMEROS!"${FIM}
@@ -382,7 +394,7 @@ Airmon() {
     printf "%b\n" ${Rd}"[$X]${Fm} ${Vd}${LAN[$X]%%:*}"${Fm}
   done
 
-  read -p $'\033[31;1m\nDIGITE O NÚMERO DA PLACA ESCOLHIDA R: \033[m' P
+  read -p $'\e[31;1m\nDIGITE O NÚMERO DA PLACA ESCOLHIDA R: \e[m' P
 
   printf "%b\n" ${Rd}"\nCOLOCANDO A PLACA WIFI EM MODO MONITOR"${Fm}
   sleep 2s
@@ -402,7 +414,7 @@ Wash() {
     printf "%b\n" ${Rd}"[$X] MAC:${Fm} ${Vd}${MACS[$X]}"${Fm}
   done
 
-  read -p $'\033[31;1m\nDIGITE O ÍNDICE DA REDE ESCOLHIDA R: \033[m' I
+  read -p $'\e[31;1m\nDIGITE O ÍNDICE DA REDE ESCOLHIDA R: \e[m' I
   printf "%b\n" ${Cy}"\nESTE PROCESSO PODE DEMORAR VÁRIOS MINUTOS\nAGUARDE O FIM DO PROCESSO...\n"${Fm}
 }
 
@@ -412,7 +424,7 @@ Bully() {
   Wash
   bully ${LAN[$P]%%:*}mon -b${MACS[$I]} -c${MACS[$I + 1]} -d -A -F -B -l 5
   printf "%b\n" ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
-  read -p $'\033[1;37mR: \033[m' RES
+  read -p $'\e[1;37mR: \e[m' RES
   [[ "${RES}" == @(s|S) ]] && Retorno || AirmonStop ${LAN[$P]%%*}mon
 }
 
@@ -422,7 +434,7 @@ Reaver() {
   Wash
   reaver -c${MACS[$I + 1]} -b${MACS[$I]} -vv -i ${LAN[$P]%%:*}mon -L -Z -K 1
   printf "%b\n" ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
-  read -p $'\033[1;37mR: \033[m' RES
+  read -p $'\e[1;37mR: \e[m' RES
   [[ "${RES}" == @(s|S) ]] && Retorno || AirmonStop ${LAN[$P]%%:*}mon
 }
 
@@ -445,7 +457,7 @@ MenuWificrack() {
     printf "%b\n" ${Rd}"=============================================================================="${Fm}
     printf "%b\n" ${Red}"ESCOLHA UMA DAS OPÇÕES DO MENU ACIMA"${Fm}
 
-    read -p $'\033[37;1mR: \033[m' dig
+    read -p $'\e[37;1mR: \e[m' dig
 
     if [[ "${dig}" =~ ^[[:alpha:]] ]]; then
       printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!${Fim}\n${Vd}SÓ É ACEITO NÚMEROS!"${FIM}
@@ -483,7 +495,7 @@ Menu() {
 
     printf "%b\n" ${Red}"ESCOLHA UMA DAS OPÇÕES DO MENU ACIMA"${Fm}
 
-    read -p $'\033[37;1mR: \033[m' dig
+    read -p $'\e[37;1mR: \e[m' dig
 
     if [[ "${dig}" =~ ^[[:alpha:]] ]]; then
       printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!${Fim}\n${Vd}SÓ É ACEITO NÚMEROS!"${FIM}
