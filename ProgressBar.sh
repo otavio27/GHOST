@@ -27,7 +27,7 @@ ProgressBar.cleanup() {
 trap ProgressBar.cleanup EXIT KILL
 
 ProgressBar.setProgress() {
-  [ $# -gt 0 ] && echo $@ >&3
+  [[ $# -gt 0 ]] && echo $@ >&3
 }
 export -f ProgressBar.setProgress
 
