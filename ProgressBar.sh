@@ -1,13 +1,5 @@
 #!/usr/bin/env bash
 
-# Colors
-Br="\e[37;1m"
-Cz="\e[0;37m"
-Rd="\e[31;1m"
-Red="\e[31;1;5m"
-Vd="\e[32;1m"
-Cy="\e[0;36m"
-Fm="\e[0m"
 
 ProgressBar.init() {
   shopt -s extglob
@@ -30,7 +22,7 @@ ProgressBar.cleanup() {
   tput el
   echo -e "Concluído [100%]"
   tput cnorm
-  [ -d "$tmp" ] && rm -fr $tmp
+  [[ -d "$tmp" ]] && rm -fr $tmp
 }
 trap ProgressBar.cleanup EXIT KILL
 
@@ -58,11 +50,11 @@ ProgressBar.print() {
   strcomplemento=$(printf "%0.s." $(eval echo {1..$cols}))
   intcompleto=$((percento*offset/total))
   intcomplemento=$((offset-intcompleto))
-  printf "\r${bar_txtcolor}${bar_txtbg}%s [%3d%%]${bar_nocolor} ${Cy}[${Fm}${bar_progresscolor}${bar_progressbg}%.*s%.*s${bar_nocolor}${Cy}]${Fm}\r" \
-    "$msg" \
-    $percento \
-    $intcompleto $strcompleto \
-    $intcomplemento $strcomplemento
+  printf "\r${bar_txtcolor}${bar_txtbg}%s [%3d%%]${bar_nocolor} [${bar_progresscolor}${bar_progressbg}%.*s%.*s${bar_nocolor}]\r" \
+  "$msg" \
+  $percento \
+  $intcompleto $strcompleto \
+  $intcomplemento $strcomplemento
 }
 
 ProgressBar.run() {
@@ -73,7 +65,7 @@ ProgressBar.run() {
 
   while :; do
 
-#    nivel=$(((++i%20)?nivel:nivel+1))
+    # nivel=$(((++i%20)?nivel:nivel+1))
 
     read -t .1
     [[ $? == 1 ]] && break
@@ -89,12 +81,12 @@ ProgressBar.run() {
     : ${REPLY%% *}
     n=${_//[^0-9]}
     nivel=$((n>0?n:nivel))
-#    nivel=$((n>nivel?n:nivel))
+    # nivel=$((n>nivel?n:nivel))
 
     # Se processo em bg concluir, ou não tiver processo em bg e nivel chegar a 100,
     # termina barra de progresso
     ps -p ${pid:-1} > /dev/null 2>&1 || break
-#    [ -z "$pid" -a "$nivel" == 100 ] && break
+    # [ -z "$pid" -a "$nivel" == 100 ] && break
 
     ProgressBar.print "$nivel" "$total" "$msg"
   done
@@ -102,8 +94,8 @@ ProgressBar.run() {
 
 ProgressBar.main() {
   ProgressBar.init $@
-  if [ $# -gt 0 ]; then
-    if [ -f "$1" ]; then
+  if [[ $# -gt 0 ]]; then
+    if [[ -f "$1" ]]; then
       "$*" &
     else
       "$*" &
@@ -113,6 +105,6 @@ ProgressBar.main() {
   ProgressBar.run
 }
 
-[ "${#BASH_SOURCE[@]}" -eq 1 ] && ProgressBar.main $@
+[[ "${#BASH_SOURCE[@]}" -eq 1 ]] && ProgressBar.main $@
 
 # vim: sts=2:ts=2:sw=2:tw=0
