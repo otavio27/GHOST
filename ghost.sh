@@ -21,6 +21,13 @@
 # License: https://www.gnu.org/licenses/gpl-3.0.txt GNU GENERAL PUBLIC LICENSE
 #===============================================================#
 
+#===============================================================#
+# Resize do terminal corrente 
+#===============================================================#
+ID=$(xdotool getactivewindow)
+xdotool windowsize --usehints ${ID} 78 38
+#===============================================================#
+
 readonly APP=$(readlink -f "${BASH_SOURCE[0]}")
 readonly APP_PATH=${APP%/*}
 version="Versão: 2.9"
