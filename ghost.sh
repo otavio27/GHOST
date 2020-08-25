@@ -174,7 +174,7 @@ ProgressBar() {
   # * O comando sed formatará a saída de nmap --stats-every para o seguinte:
   # * "[0-9]+ Mensagem de texto"
   #**/
-  sed -u -n -r '/About/s/([^:]+): About ([0-9]+).[0-9]+%.*/\2 \1/p' - | "$APP_PATH/ProgressBar.sh"
+  sed -u -n -r '/About/s/([^:]+): About ([0-9]+).[0-9]+%.*/\2 \1/p' - | "$APP_PATH/ProgressBar.sh" -z
 }
 
 Nmap() {
