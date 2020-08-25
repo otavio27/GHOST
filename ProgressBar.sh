@@ -88,7 +88,6 @@ ProgressBar.init() {
       # não tiver processo em bg e nivel chegar a 100,
       # termina barra de progresso
       ps -p ${main_pid:-1} > /dev/null 2>&1 || break
-      [ -z "$main_pid" -a "$nivel" == 100 ] && break
 
       ProgressBar.print "$nivel" "$total" "$msg"
     done
