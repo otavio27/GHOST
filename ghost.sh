@@ -54,18 +54,11 @@ readonly nmapwrite=(
   "Scan de firewall com MAC spoofing"
   "Scan de host utilizando serviços UDP"
   "Scan decoys (camufla o ip)"
+  "Scan de host de destino em busca de vulnerabilidades SMB"
+  "Scan para enumerar os compartilhamentos SMB em um host de destino"
+  "Scan para descoberta de sistema operacional que usa SMB"
+  "Scan para enumerar os usuários em um host de destino"
 )
-
-#===============================================================#
-# Skull. Animação inicial
-#===============================================================#
-
-for X in ${!SKULL[@]}; do
-  printf "%b\n" "\t\t\t${Red}${SKULL[$X]}${Fm}"
-  sleep 0.05s
-done
-
-sleep 3s
 
 #===============================================================#
 # Verifica se o usuário está logado como root
@@ -199,6 +192,10 @@ Nmap() {
     10) NMAP_OPT="-v -sT -PN --spoof-mac 0" ;;
     11) NMAP_OPT="-sU" ;;
     12) NMAP_OPT="-n -D 192.168.1.1,10.5.1.2,172.1.2.4,3.4.2.1" ;;
+    13) NMAP_OPT="--script smb-check-vulns.nse --script-args=unsafe=1 -p445" ;;
+    14) NMAP_OPT="--script smb-enum-shares.nse --script-args=unsafe=1 -p445" ;;
+    15) NMAP_OPT="--script smb-os-discovery.nse --script-args=unsafe=1 -p445" ;;
+    16) NMAP_OPT="--script smb-enum-users.nse --script-args=unsafe=1 -p445" ;;
   esac
   nmap $NMAP_OPT $IP -oN $log --stats-every 1s 2>&- | ProgressBar
 }
@@ -319,7 +316,7 @@ Ghost() {
   case ${dig} in
 
     [1-9] | [0-9][0-9]) # Metodo usado para suprir a nescessidade de colocar numero ao lado de número.
-      if [[ ${dig} -ge 13 ]]; then
+      if [[ ${dig} -ge 17 ]]; then
         printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!"${Fim}
         sleep 2s && MenuNmap
       else
@@ -485,7 +482,7 @@ Menu() {
       sleep 0.05s
     done
 
-    printf "%b\n" ${Cy}"                               ${version}${Fm}
+    printf "%b\n" ${Cy}"                               ${version}${Fm}"
     printf "%b\n" ${Rd}"=============================================================================="${Fm}
     printf "%b\n" ${Rd}" [0]"${Fm}${Br}" Para sair"${Fm}
     printf "%b\n" ${Rd}" [1]"${Fm}${Br}" Scanner usando o nmap"${Fm}
@@ -504,8 +501,7 @@ Menu() {
         0) Exit ;;
         1) MenuNmap ;;
         2) MenuWificrack ;;
-        *) printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!"${Fim}
-        sleep 2s && Menu ;;
+        *) printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!"${Fim} && sleep 2s && Menu ;;
       esac
     fi
   done
