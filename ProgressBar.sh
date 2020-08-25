@@ -83,10 +83,10 @@ ProgressBar.init() {
       fi
       msg="${str:-$msg}"
 
-#      ProgressBar.checkProcess && break
-      #   Se processo em bg concluir, ou
-      #     não tiver processo em bg e nivel chegar a 100,
-      #     termina barra de progresso
+      # ProgressBar.checkProcess && break
+      # Se processo em bg concluir, ou
+      # não tiver processo em bg e nivel chegar a 100,
+      # termina barra de progresso
       ps -p ${main_pid:-1} > /dev/null 2>&1 || break
       [ -z "$main_pid" -a "$nivel" == 100 ] && break
 
