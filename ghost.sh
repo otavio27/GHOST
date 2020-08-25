@@ -24,7 +24,6 @@
 readonly APP=$(readlink -f "${BASH_SOURCE[0]}")
 readonly APP_PATH=${APP%/*}
 version="Versão: 2.9"
-system=$( source /etc/os-release; echo "${NAME%% *}"; )
 
 # Colors
 Br="\e[37;1m"
@@ -486,7 +485,7 @@ Menu() {
       sleep 0.05s
     done
 
-    printf "%b\n" ${Cy}"                            ${version}${Fm} ${Br}OS: ${system}"${Fm}
+    printf "%b\n" ${Cy}"                               ${version}${Fm}
     printf "%b\n" ${Rd}"=============================================================================="${Fm}
     printf "%b\n" ${Rd}" [0]"${Fm}${Br}" Para sair"${Fm}
     printf "%b\n" ${Rd}" [1]"${Fm}${Br}" Scanner usando o nmap"${Fm}
