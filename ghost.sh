@@ -22,7 +22,7 @@
 #===============================================================#
 
 #===============================================================#
-# Resize do terminal corrente 
+# Resize do terminal corrente
 #===============================================================#
 ID=$(xdotool getactivewindow)
 xdotool windowsize --usehints ${ID} 78 38
@@ -30,7 +30,7 @@ xdotool windowsize --usehints ${ID} 78 38
 
 readonly APP=$(readlink -f "${BASH_SOURCE[0]}")
 readonly APP_PATH=${APP%/*}
-version="Versão: 2.9"
+version="Versão: 3.0"
 
 # Colors
 Br="\e[37;1m"
@@ -41,7 +41,6 @@ Vd="\e[32;1m"
 Cy="\e[0;36m"
 Fm="\e[0m"
 
-source "$APP_PATH/skull.sh"
 source "$APP_PATH/logos.sh"
 source "$APP_PATH/ProgressBar.sh"
 
@@ -97,16 +96,16 @@ CheckDependencies() {
   declare -a missing
 
   for d in "${!deps[@]}"; do
-    [[ -z $(sudo dpkg -l "${deps[$d]}" 2>/dev/null) ]] && missing+=(${deps[$d]})
+    [[ -z $(sudo dpkg -l "${deps[$d]}" 2> /dev/null) ]] && missing+=(${deps[$d]})
   done
 
   if [[ ${#missing[@]} -ne 0 ]]; then
     printf "%b\n" ${Rd}"\n\tFALTAM AS DEPENDÊNCIAS:${Fm}${Cy} ${missing[@]}"${Fm}
     read -p $'\e[1;31m\n\t\tINSTALAR AS DEPENDÊNCIAS?\nR: \e[m' RES
     if [[ "${RES,,}" == @(s|sim) ]]; then
-      sudo apt update && sudo apt install ${missing[@]} -y
+      sudo apt update -qq && sudo apt install ${missing[@]} -y -qq
       printf "%b\n" ${Vd}"\n\t\tTODAS AS DEPENDÊNCIAS FORAM INSTALADAS"${Fm}
-      sleep 1s && Retorno
+      sleep 1s && Menu
     elif [[ "${RES,,}" == @(n|não) ]]; then
       printf "%b\n" ${Rd}"\n\t\tNÃO É POSSÍVEL PROSSEGUIR SEM INSTALAR AS DEPENDÊNCIAS"${Fm}
       sleep 3s && Thanks
@@ -117,6 +116,12 @@ CheckDependencies() {
     printf "%b\n" ${Vd}"\n\t\tNÃO HÁ DEPENDÊNCIAS A SEREM INSTALADAS"${Fm}
     sleep 1s
   fi
+}
+
+LinePrint() {
+
+  LINE=$(printf '%*s' "${columns:-$(tput cols)}" | tr ' ' "=")
+  printf '%b\n' "${Rd}${LINE}${Fm}" 
 }
 
 Retorno() {
@@ -222,7 +227,7 @@ NmapScanner() {
     printf "%b\n" ${Vd}"\nESTE PROCESSO PODE DEMORAR, AGUARDE ATÉ O FIM."${Fm}
   fi
 
-  printf "%b\n" ${Rd}"\n=========================================================="${Fm}
+  LinePrint
 
   Nmap ${dig}
 }
@@ -343,21 +348,21 @@ MenuNmap() {
   clear
   while true; do
 
-    printf "%b\n" ${Rd}"==============================================================================\n"${Fm}
+    LinePrint
 
     for X in "${!NMAP[@]}"; do
-      printf "%b\n" ${Vd}"\t\t\t${NMAP[$X]}"${Fm}
+      printf "%b\n" ${Vd}"\t\t ${NMAP[$X]}"${Fm}
       sleep 0.05s
     done
 
-    printf "%b\n" ${Rd}"\n=============================================================================="${Fm}
+    LinePrint
 
     for N in "${!nmapwrite[@]}"; do
-      printf "%b" ${Rd}"\n [$N]${Fm}${Br} ${nmapwrite[$N]}"${Fm}
+      printf "%b" ${Rd}"\n [${Cy}${N}${Rd}]${Br} ${nmapwrite[$N]}"${Fm}
       sleep 0.05s
     done
-
-    printf "%b\n" ${Rd}"\n=============================================================================="${Fm}
+    echo "" # Não remover !!!
+    LinePrint
 
     printf "%b\n" ${Red}"ESCOLHA UMA DAS OPÇÕES DO MENU ACIMA"${Fm}
 
@@ -394,7 +399,7 @@ Airmon() {
   printf "%b\n" ${Rd}"\nPLACAS DE REDE WIRELESS DISPONÍVEIS:\n"${Fm}
 
   for X in "${!LAN[@]}"; do
-    printf "%b\n" ${Rd}"[$X]${Fm} ${Vd}${LAN[$X]%%:*}"${Fm}
+    printf "%b\n" ${Rd}" [${Cy}$X${Rd}]${Br} ${Vd}${LAN[$X]%%:*}"${Fm}
   done
 
   read -p $'\e[31;1m\nDIGITE O NÚMERO DA PLACA ESCOLHIDA R: \e[m' P
@@ -446,18 +451,18 @@ MenuWificrack() {
   clear
   while true; do
 
-    printf "%b\n" ${Rd}"==============================================================================\n"${Fm}
+    LinePrint
 
     for X in "${!WIFI[@]}"; do
       printf "%b\n" ${Cy}"\t${WIFI[$X]}"${Fm}
       sleep 0.05s
     done
 
-    printf "%b\n" ${Rd}"\n=============================================================================="${Fm}
-    printf "%b\n" ${Rd}" [0]"${Fm}${Br}" Para retornar ao menu principal"${Fm}
-    printf "%b\n" ${Rd}" [1]"${Fm}${Br}" Quebra do PIN WPS com REAVER"${Fm}
-    printf "%b\n" ${Rd}" [2]"${Fm}${Br}" Quebra do PIN WPS com BULLY"${Fm}
-    printf "%b\n" ${Rd}"=============================================================================="${Fm}
+    LinePrint
+    printf "%b\n" ${Rd}" [${Cy}0${Rd}]${Br} Para retornar ao menu principal"${Fm}
+    printf "%b\n" ${Rd}" [${Cy}1${Rd}]${Br} Quebra do PIN WPS com REAVER"${Fm}
+    printf "%b\n" ${Rd}" [${Cy}2${Rd}]${Br} Quebra do PIN WPS com BULLY"${Fm}
+    LinePrint
     printf "%b\n" ${Red}"ESCOLHA UMA DAS OPÇÕES DO MENU ACIMA"${Fm}
 
     read -p $'\e[37;1mR: \e[m' dig
@@ -482,7 +487,7 @@ Menu() {
   clear
   while true; do
 
-    printf "%b\n" ${Rd}"==============================================================================\n"${Fm}
+    LinePrint
 
     for X in "${!GHOST[@]}"; do
       printf "%b\n" ${Rd}"\t\t${GHOST[$X]}"${Fm}
@@ -490,11 +495,11 @@ Menu() {
     done
 
     printf "%b\n" ${Cy}"                               ${version}${Fm}"
-    printf "%b\n" ${Rd}"=============================================================================="${Fm}
-    printf "%b\n" ${Rd}" [0]"${Fm}${Br}" Para sair"${Fm}
-    printf "%b\n" ${Rd}" [1]"${Fm}${Br}" Scanner usando o nmap"${Fm}
-    printf "%b\n" ${Rd}" [2]"${Fm}${Br}" Quebra de senha wifi com WifiCrack"${Fm}
-    printf "%b\n" ${Rd}"=============================================================================="${Fm}
+    LinePrint
+    printf "%b\n" ${Rd}" [${Cy}0${Rd}]${Br} Para sair"${Fm}
+    printf "%b\n" ${Rd}" [${Cy}1${Rd}]${Br} Scanner usando o nmap"${Fm}
+    printf "%b\n" ${Rd}" [${Cy}2${Rd}]${Br} Quebra de senha wifi com WifiCrack"${Fm}
+    LinePrint
 
     printf "%b\n" ${Red}"ESCOLHA UMA DAS OPÇÕES DO MENU ACIMA"${Fm}
 
