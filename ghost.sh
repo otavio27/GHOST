@@ -34,7 +34,6 @@ version="Versão: 3.0"
 
 # Colors
 Br="\e[37;1m"
-Cz="\e[0;37m"
 Rd="\e[31;1m"
 Red="\e[31;1;5m"
 Vd="\e[32;1m"
@@ -45,23 +44,6 @@ source "$APP_PATH/logos.sh"
 source "$APP_PATH/ProgressBar.sh"
 
 log="$APP_PATH/ghost-log.txt"
-
-readonly nmapwrite=(
-  "Para retornar ao menu principal"
-  "Informações somente de portas abertas"
-  "Informações de qual Sistema Operacional"
-  "Informações do sistema Operacional, versões dos serviços e portas"
-  "Informações somente de uma porta, ou portas em específico"
-  "Bruteforce MYSQL? Use com responsabilidade!!!"
-  "Detectar falhas em servidores, saída do tipo verbose -v"
-  "Realizar pesquisas sobre alvos"
-  "Buscar falhas de DDoS"
-  "Scan de firewall com fragmentos de pacotes"
-  "Scan de firewall com MAC spoofing"
-  "Scan de host utilizando serviços UDP"
-  "Scan decoys (camufla o ip)"
-  "Scan com escolha de scripts "
-)
 
 #===============================================================#
 # Verifica se o usuário está logado como root
@@ -125,18 +107,18 @@ Retorno() {
 
   printf "%b\n" ${Rd}"\nRETORNAR PARA: NMAP${Fm}${Br} [N]${Fm}${Rd} WIFICRACK${Fm}${Br} [W]${Fm} ${Rd} MENU${Fm}${Br} [M]${Fm}"
   read -p $'\e[1;37mR: \e[m' RES
-  case ${RES} in
-  n | N)
-    LAN=($(sudo ifconfig | grep 'wl' | awk '{print $1}'))
-    sudo airmon-ng stop ${LAN%%:*} >/dev/null
-    printf "%b\n" ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuNmap
-    ;;
-  w | W)
-    printf "%b\n" ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuWificrack
-    ;;
-  m | M)
-    printf "%b\n" ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && Menu
-    ;;
+  case ${RES^^} in
+    N)
+      LAN=($(sudo ifconfig | grep 'wl' | awk '{print $1}'))
+      sudo airmon-ng stop ${LAN%%:*} >/dev/null
+      printf "%b\n" ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuNmap
+      ;;
+    W)
+      printf "%b\n" ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuWificrack
+      ;;
+    M)
+      printf "%b\n" ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && Menu
+      ;;
   esac
 }
 
@@ -191,19 +173,19 @@ ProgressBar() {
 Nmap() {
 
   case ${dig} in
-  1) NMAP_OPT="-f -sS -vv -T4 -Pn" ;;
-  2) NMAP_OPT="-O -vv -Pn" ;;
-  3) NMAP_OPT="-sS -sV -vv -O -T4 -Pn" ;;
-  4) NMAP_OPT="-sS -vv -Pn -p $port" ;;
-  5) NMAP_OPT="--script=mysql-brute " ;;
-  6) NMAP_OPT="-sS -v -Pn -A --open --script=vuln" ;;
-  7) NMAP_OPT="--script=asn-query,whois-ip,ip-geolocation-maxmind" ;;
-  8) NMAP_OPT="-sU -A -PN -n -pU:19,53,123,161 --script=ntp-monlist,dns-recursion,snmp-sysdescr" ;;
-  9) NMAP_OPT="--mtu 32" ;;
-  10) NMAP_OPT="-v -sT -PN --spoof-mac 0" ;;
-  11) NMAP_OPT="-sU" ;;
-  12) NMAP_OPT="-n -D 192.168.1.1,10.5.1.2,172.1.2.4,3.4.2.1" ;;
-  13) NMAP_OPT="--script ${OPT} --script-args=unsafe=1" ;;
+    1) NMAP_OPT="-f -sS -vv -T4 -Pn" ;;
+    2) NMAP_OPT="-O -vv -Pn" ;;
+    3) NMAP_OPT="-sS -sV -vv -O -T4 -Pn" ;;
+    4) NMAP_OPT="-sS -vv -Pn -p $port" ;;
+    5) NMAP_OPT="--script=mysql-brute " ;;
+    6) NMAP_OPT="-sS -v -Pn -A --open --script=vuln" ;;
+    7) NMAP_OPT="--script=asn-query,whois-ip,ip-geolocation-maxmind" ;;
+    8) NMAP_OPT="-sU -A -PN -n -pU:19,53,123,161 --script=ntp-monlist,dns-recursion,snmp-sysdescr" ;;
+    9) NMAP_OPT="--mtu 32" ;;
+    10) NMAP_OPT="-v -sT -PN --spoof-mac 0" ;;
+    11) NMAP_OPT="-sU" ;;
+    12) NMAP_OPT="-n -D 192.168.1.1,10.5.1.2,172.1.2.4,3.4.2.1" ;;
+    13) NMAP_OPT="--script ${OPT} --script-args=unsafe=1" ;;
   esac
   nmap $NMAP_OPT $IP -oN $log --stats-every 1s 2>&- | ProgressBar
 }
@@ -223,7 +205,6 @@ NmapScanner() {
     printf "%b\n" ${Rd}"\nDISPARANDO SCANNER NO IP DO ALVO: >>> [ "${FM}${Cy}"${IP}"${Fm}${Rd}" ]"${Fm}
     printf "%b\n" ${Vd}"\nESTE PROCESSO PODE DEMORAR, AGUARDE ATÉ O FIM."${Fm}
   fi
-
   LinePrint
 
   Nmap ${dig}
@@ -238,9 +219,9 @@ Mask() {
     read -p $'\e[1;31m\nDIGITE UM IP VÁLIDO!.\nR: \e[m' ip && Mask
   else
     case ${mask} in
-    [0-9] | [0-9][0-9]) # Metodo usado para suprir a nescessidade de colocar número ao lado de número.
-      IP="${ip}/${mask}" && NmapScanner ${IP} ;;
-    *) OptionExit ;;
+      [0-9] | [0-9][0-9]) # Metodo usado para suprir a nescessidade de colocar número ao lado de número.
+        IP="${ip}/${mask}" && NmapScanner ${IP} ;;
+      *) OptionExit ;;
     esac
   fi
   OpenLog
@@ -324,35 +305,53 @@ Ghost() {
 
   case ${dig} in
 
-  [1-9] | [0-9][0-9]) # Metodo usado para suprir a nescessidade de colocar numero ao lado de número.
-    if [[ ${dig} -ge 14 ]]; then
-      printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!"${Fim}
-      sleep 2s && MenuNmap
-    else
-      printf "%b\n" ${Rd}"\nESCANEAR IP OU REDE?${Fm}${Br} [I/R]"${Fm}
-      printf "%b\n" ${Rd}"\nTODAS AS SAÍDAS SERÃO DIRECIONADAS PARA O ARQUIVO:${Fm}${Cy} $log"${Fm}
-      read -p $'\e[1;37mR: \e[m' RES
-      [[ "${RES}" == @(i|I) ]] && IPF ${dig} || [[ "${RES}" == @(r|R) ]] && Rede ${dig} || OptionExit
-    fi ;;
-  0) Exit ;;
-  *) OptionExit ;;
+    [1-9] | [0-9][0-9]) # Metodo usado para suprir a nescessidade de colocar numero ao lado de número.
+      if [[ ${dig} -ge 14 ]]; then
+        printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!"${Fim}
+        sleep 2s && MenuNmap
+      else
+        printf "%b\n" ${Rd}"\nESCANEAR IP OU REDE?${Fm}${Br} [I/R]"${Fm}
+        printf "%b\n" ${Rd}"\nTODAS AS SAÍDAS SERÃO DIRECIONADAS PARA O ARQUIVO:${Fm}${Cy} $log"${Fm}
+        read -p $'\e[1;37mR: \e[m' RES
+        [[ "${RES}" == @(i|I) ]] && IPF ${dig} || [[ "${RES}" == @(r|R) ]] && Rede ${dig} || OptionExit
+      fi ;;
+    0) Exit ;;
+    *) OptionExit ;;
   esac
 }
 
 ScriptsNmap() {
 
-  printf "%b\n" "${Rd}\nATUALIZANDO OS SCRIPTS, AGUARDE!${Fm}"
-  sleep 2s
   sudo nmap --script-updatedb* 2>&-
 
   cd /usr/share/nmap/scripts/
-  OPT=$(fzf --color fg:124,bg:16,hl:202,fg+:214,bg+:52,hl+:231 --border --reverse -i -e --tiebreak=begin)
+  OPT=$(fzf --color fg:124,bg:16,hl:202,fg+:214,bg+:52,hl+:231 \
+    --reverse -i -e --tiebreak=begin --height=20 
+  )
   Ghost ${OPT}
 }
 
 MenuNmap() {
 
   clear
+
+  nmapwrite=(
+    "Para retornar ao menu principal"
+    "Informações somente de portas abertas"
+    "Informações de qual Sistema Operacional"
+    "Informações do sistema Operacional, versões dos serviços e portas"
+    "Informações somente de uma porta, ou portas em específico"
+    "Bruteforce MYSQL? Use com responsabilidade!!!"
+    "Detectar falhas em servidores, saída do tipo verbose -v"
+    "Realizar pesquisas sobre alvos"
+    "Buscar falhas de DDoS"
+    "Scan de firewall com fragmentos de pacotes"
+    "Scan de firewall com MAC spoofing"
+    "Scan de host utilizando serviços UDP"
+    "Scan decoys (camufla o ip)"
+    "Scan com escolha de scripts "
+  )
+
   while true; do
 
     LinePrint
@@ -361,6 +360,8 @@ MenuNmap() {
       printf "%b\n" ${Vd}"\t\t ${NMAP[$X]}"${Fm}
       sleep 0.05s
     done
+
+    printf "%b\n" ${Cy}"                               ${version}${Fm}"
 
     LinePrint
 
@@ -372,9 +373,9 @@ MenuNmap() {
     dig="${dig%%-*}"
 
     case ${dig} in
-    0) Menu ;;
-    13) ScriptsNmap ;;
-    *) Ghost ${dig} ;;
+      0) Menu ;;
+      13) ScriptsNmap ;;
+      *) Ghost ${dig} ;;
     esac
   done
 }
@@ -448,7 +449,7 @@ MenuWificrack() {
   clear
 
   words=(
-    "Para retornar ao menu principal"
+    "Retornar ao menu principal"
     "Quebra do PIN WPS com REAVER"
     "Quebra do PIN WPS com BULLY"
   )
@@ -461,8 +462,10 @@ MenuWificrack() {
       printf "%b\n" ${Cy}"\t${WIFI[$X]}"${Fm}
       sleep 0.05s
     done
+    printf "%b\n" ${Cy}"                               ${version}${Fm}"
 
     LinePrint
+
     dig=$(
       fzf --color fg:124,bg:16,hl:202,fg+:214,bg+:52,hl+:231 \
       --reverse -i -e --tiebreak=begin --height=20 \
@@ -471,15 +474,14 @@ MenuWificrack() {
     dig="${dig%%-*}"
 
     case ${dig} in
-    0) Menu ;;
-    1) Reaver ;;
-    2) Bully ;;
-    *)
+      0) Menu ;;
+      1) Reaver ;;
+      2) Bully ;;
+      *)
       printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!"${Fim}
       sleep 2s && MenuWificrack
       ;;
     esac
-
   done
 }
 
@@ -489,8 +491,8 @@ Menu() {
 
   MenuWords=(
     "Para sair"
-    "Scanner usando o nmap"
-    "Quebra de senha wifi com WifiCrack"
+    "Nmap Scanner"
+    "WifiCrack"
   )
 
   while true; do
@@ -513,10 +515,10 @@ Menu() {
     dig="${dig%%-*}"
 
     case ${dig} in
-    0) Exit ;;
-    1) MenuNmap ;;
-    2) MenuWificrack ;;
-    *) printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!"${Fim} && sleep 2s && Menu ;;
+      0) Exit ;;
+      1) MenuNmap ;;
+      2) MenuWificrack ;;
+      *) printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!"${Fim} && sleep 2s && Menu ;;
     esac
   done
 }
