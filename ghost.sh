@@ -326,7 +326,7 @@ ScriptsNmap() {
 
   cd /usr/share/nmap/scripts/
   OPT=$(fzf --color fg:124,bg:16,hl:202,fg+:214,bg+:52,hl+:231 \
-    --reverse -i -e --tiebreak=begin --height=20 
+    --reverse -i -e --tiebreak=begin --height=27 
   )
   Ghost ${OPT}
 }
