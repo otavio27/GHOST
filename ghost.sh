@@ -60,10 +60,7 @@ readonly nmapwrite=(
   "Scan de firewall com MAC spoofing"
   "Scan de host utilizando serviços UDP"
   "Scan decoys (camufla o ip)"
-  "Scan de host de destino em busca de vulnerabilidades SMB"
-  "Scan para enumerar os compartilhamentos SMB em um host de destino"
-  "Scan para descoberta de sistema operacional que usa SMB"
-  "Scan para enumerar os usuários em um host de destino"
+  "Scan com escolha de scripts "
 )
 
 #===============================================================#
@@ -89,14 +86,14 @@ CheckRoot() {
 CheckDependencies() {
 
   deps=(
-    "nmap" "ipcalc" "net-tools" "git" "pixiewps"
+    "nmap" "ipcalc" "net-tools" "git" "pixiewps" "xdotool" "fzf"
     "build-essential" "libpcap-dev" "aircrack-ng" "reaver" "ethtool"
   )
 
   declare -a missing
 
   for d in "${!deps[@]}"; do
-    [[ -z $(sudo dpkg -l "${deps[$d]}" 2> /dev/null) ]] && missing+=(${deps[$d]})
+    [[ -z $(sudo dpkg -l "${deps[$d]}" 2>/dev/null) ]] && missing+=(${deps[$d]})
   done
 
   if [[ ${#missing[@]} -ne 0 ]]; then
@@ -113,7 +110,7 @@ CheckDependencies() {
       printf "%b\n" ${Rd}"\n\t\tNÃO FOI POSSÍVEL INSTALAR AS DEPENDÊNCIAS ${missing[@]}"${Fm}
     fi
   else
-    printf "%b\n" ${Vd}"\n\t\tNÃO HÁ DEPENDÊNCIAS A SEREM INSTALADAS"${Fm}
+    printf "%b\n" ${Vd}"\n\t\t  NÃO HÁ DEPENDÊNCIAS A SEREM INSTALADAS"${Fm}
     sleep 1s
   fi
 }
@@ -121,7 +118,7 @@ CheckDependencies() {
 LinePrint() {
 
   LINE=$(printf '%*s' "${columns:-$(tput cols)}" | tr ' ' "=")
-  printf '%b\n' "${Rd}${LINE}${Fm}" 
+  printf '%b\n' "${Rd}${LINE}${Fm}"
 }
 
 Retorno() {
@@ -129,14 +126,16 @@ Retorno() {
   printf "%b\n" ${Rd}"\nRETORNAR PARA: NMAP${Fm}${Br} [N]${Fm}${Rd} WIFICRACK${Fm}${Br} [W]${Fm} ${Rd} MENU${Fm}${Br} [M]${Fm}"
   read -p $'\e[1;37mR: \e[m' RES
   case ${RES} in
-    n | N)
-      LAN=($(sudo ifconfig | grep 'wl' | awk '{print $1}'))
-      sudo airmon-ng stop ${LAN%%:*} >/dev/null
-      printf "%b\n" ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuNmap
+  n | N)
+    LAN=($(sudo ifconfig | grep 'wl' | awk '{print $1}'))
+    sudo airmon-ng stop ${LAN%%:*} >/dev/null
+    printf "%b\n" ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuNmap
     ;;
-    w | W) printf "%b\n" ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuWificrack
+  w | W)
+    printf "%b\n" ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && MenuWificrack
     ;;
-    m | M) printf "%b\n" ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && Menu
+  m | M)
+    printf "%b\n" ${Rd}"\nRETORNANDO..."${Fm} && sleep 2s && Menu
     ;;
   esac
 }
@@ -192,22 +191,19 @@ ProgressBar() {
 Nmap() {
 
   case ${dig} in
-    1) NMAP_OPT="-f -sS -vv -T4 -Pn" ;;
-    2) NMAP_OPT="-O -vv -Pn" ;;
-    3) NMAP_OPT="-sS -sV -vv -O -T4 -Pn" ;;
-    4) NMAP_OPT="-sS -vv -Pn -p $port" ;;
-    5) NMAP_OPT="--script=mysql-brute " ;;
-    6) NMAP_OPT="-sS -v -Pn -A --open --script=vuln" ;;
-    7) NMAP_OPT="--script=asn-query,whois-ip,ip-geolocation-maxmind" ;;
-    8) NMAP_OPT="-sU -A -PN -n -pU:19,53,123,161 --script=ntp-monlist,dns-recursion,snmp-sysdescr" ;;
-    9) NMAP_OPT="--mtu 32" ;;
-    10) NMAP_OPT="-v -sT -PN --spoof-mac 0" ;;
-    11) NMAP_OPT="-sU" ;;
-    12) NMAP_OPT="-n -D 192.168.1.1,10.5.1.2,172.1.2.4,3.4.2.1" ;;
-    13) NMAP_OPT="--script smb-check-vulns.nse --script-args=unsafe=1 -p445" ;;
-    14) NMAP_OPT="--script smb-enum-shares.nse --script-args=unsafe=1 -p445" ;;
-    15) NMAP_OPT="--script smb-os-discovery.nse --script-args=unsafe=1 -p445" ;;
-    16) NMAP_OPT="--script smb-enum-users.nse --script-args=unsafe=1 -p445" ;;
+  1) NMAP_OPT="-f -sS -vv -T4 -Pn" ;;
+  2) NMAP_OPT="-O -vv -Pn" ;;
+  3) NMAP_OPT="-sS -sV -vv -O -T4 -Pn" ;;
+  4) NMAP_OPT="-sS -vv -Pn -p $port" ;;
+  5) NMAP_OPT="--script=mysql-brute " ;;
+  6) NMAP_OPT="-sS -v -Pn -A --open --script=vuln" ;;
+  7) NMAP_OPT="--script=asn-query,whois-ip,ip-geolocation-maxmind" ;;
+  8) NMAP_OPT="-sU -A -PN -n -pU:19,53,123,161 --script=ntp-monlist,dns-recursion,snmp-sysdescr" ;;
+  9) NMAP_OPT="--mtu 32" ;;
+  10) NMAP_OPT="-v -sT -PN --spoof-mac 0" ;;
+  11) NMAP_OPT="-sU" ;;
+  12) NMAP_OPT="-n -D 192.168.1.1,10.5.1.2,172.1.2.4,3.4.2.1" ;;
+  13) NMAP_OPT="--script ${OPT} --script-args=unsafe=1" ;;
   esac
   nmap $NMAP_OPT $IP -oN $log --stats-every 1s 2>&- | ProgressBar
 }
@@ -217,7 +213,8 @@ NmapScanner() {
   clear
   tput civis -- invisible
 
-  printf "%b\n" ${Rd}"\n==========================[${Fm}${Br}GHOST${Fm}${Rd}]========================="${Fm}
+  LinePrint
+  # printf "%b\n" ${Rd}"\n\t\t\t[ ${Fm}${Br}GHOST${Fm}${Rd} ]"${Fm}
   if [[ ${dns} =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
     printf "%b\n" ${Rd}"\nDISPARANDO SCANNER NO ALVO: >>> [ "${FM}${Cy}"${IP}"${Fm}${Rd}" ]"${Fm}
     printf "%b\n" ${Vd}"\nESTE PROCESSO PODE DEMORAR, AGUARDE ATÉ O FIM."${Fm}
@@ -241,9 +238,9 @@ Mask() {
     read -p $'\e[1;31m\nDIGITE UM IP VÁLIDO!.\nR: \e[m' ip && Mask
   else
     case ${mask} in
-      [0-9] | [0-9][0-9]) # Metodo usado para suprir a nescessidade de colocar número ao lado de número.
+    [0-9] | [0-9][0-9]) # Metodo usado para suprir a nescessidade de colocar número ao lado de número.
       IP="${ip}/${mask}" && NmapScanner ${IP} ;;
-      *) OptionExit ;;
+    *) OptionExit ;;
     esac
   fi
   OpenLog
@@ -251,7 +248,7 @@ Mask() {
 
 FullRange() {
 
-  IFS='.' read C1 C2 C3 C4 <<< ${ip}
+  IFS='.' read C1 C2 C3 C4 <<<${ip}
 
   while :; do
 
@@ -327,20 +324,30 @@ Ghost() {
 
   case ${dig} in
 
-    [1-9] | [0-9][0-9]) # Metodo usado para suprir a nescessidade de colocar numero ao lado de número.
-      if [[ ${dig} -ge 17 ]]; then
-        printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!"${Fim}
-        sleep 2s && MenuNmap
-      else
-        printf "%b\n" ${Rd}"\nESCANEAR IP OU REDE?${Fm}${Br} [I/R]"${Fm}
-        printf "%b\n" ${Rd}"\nTODAS AS SAÍDAS SERÃO DIRECIONADAS PARA O ARQUIVO:${Fm}${Cy} $log"${Fm}
-        read -p $'\e[1;37mR: \e[m' RES
-        [[ "${RES}" == @(i|I) ]] && IPF ${dig} || [[ "${RES}" == @(r|R) ]] && Rede ${dig} || OptionExit
-      fi ;;
-    0) Exit ;;
-
-    *) OptionExit ;;
+  [1-9] | [0-9][0-9]) # Metodo usado para suprir a nescessidade de colocar numero ao lado de número.
+    if [[ ${dig} -ge 14 ]]; then
+      printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!"${Fim}
+      sleep 2s && MenuNmap
+    else
+      printf "%b\n" ${Rd}"\nESCANEAR IP OU REDE?${Fm}${Br} [I/R]"${Fm}
+      printf "%b\n" ${Rd}"\nTODAS AS SAÍDAS SERÃO DIRECIONADAS PARA O ARQUIVO:${Fm}${Cy} $log"${Fm}
+      read -p $'\e[1;37mR: \e[m' RES
+      [[ "${RES}" == @(i|I) ]] && IPF ${dig} || [[ "${RES}" == @(r|R) ]] && Rede ${dig} || OptionExit
+    fi ;;
+  0) Exit ;;
+  *) OptionExit ;;
   esac
+}
+
+ScriptsNmap() {
+
+  printf "%b\n" "${Rd}ATUALIZANDO OS SCRIPTS, AGUARDE!${Fm}"
+  sleep 2s
+  sudo nmap --script-updatedb* 2>&-
+
+  cd /usr/share/nmap/scripts/
+  OPT=$(fzf --color fg:124,bg:16,hl:202,fg+:214,bg+:52,hl+:231)
+  Ghost ${OPT}
 }
 
 MenuNmap() {
@@ -373,8 +380,9 @@ MenuNmap() {
       sleep 2s && MenuNmap
     else
       case ${dig} in
-        0) Menu ;;
-        *) Ghost ${dig} ;;
+      0) Menu ;;
+      13) ScriptsNmap ;;
+      *) Ghost ${dig} ;;
       esac
     fi
   done
@@ -408,7 +416,6 @@ Airmon() {
   sleep 2s
   sudo airmon-ng start ${LAN[$P]%%:*} >/dev/null && clear
   printf "%b\n" ${Rd}"OBTENDO REDES WIFI DISPONIVEIS, O PROCESSO LEVARÁ ALGUNS SEGUNDOS\n"${Fm}
-
 }
 
 Wash() {
@@ -472,11 +479,13 @@ MenuWificrack() {
       sleep 2s && MenuWificrack
     else
       case ${dig} in
-        0) Menu ;;
-        1) Reaver ;;
-        2) Bully ;;
-        *) printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!"${Fim}
-        sleep 2s && MenuWificrack ;;
+      0) Menu ;;
+      1) Reaver ;;
+      2) Bully ;;
+      *)
+        printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!"${Fim}
+        sleep 2s && MenuWificrack
+        ;;
       esac
     fi
   done
@@ -510,10 +519,10 @@ Menu() {
       sleep 2s && Menu
     else
       case ${dig} in
-        0) Exit ;;
-        1) MenuNmap ;;
-        2) MenuWificrack ;;
-        *) printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!"${Fim} && sleep 2s && Menu ;;
+      0) Exit ;;
+      1) MenuNmap ;;
+      2) MenuWificrack ;;
+      *) printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!"${Fim} && sleep 2s && Menu ;;
       esac
     fi
   done
