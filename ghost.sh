@@ -118,7 +118,7 @@ CheckDependencies() {
 LinePrint() {
 
   LINE=$(printf '%*s' "${columns:-$(tput cols)}" | tr ' ' "=")
-  printf '%b\n' "${Rd}${LINE}${Fm}"
+  printf '%b\n' "${Rd}${LINE}${Fm}\n"
 }
 
 Retorno() {
@@ -356,7 +356,7 @@ MenuNmap() {
   while true; do
 
     LinePrint
-
+  
     for X in "${!NMAP[@]}"; do
       printf "%b\n" ${Vd}"\t\t ${NMAP[$X]}"${Fm}
       sleep 0.05s
