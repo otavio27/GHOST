@@ -341,12 +341,12 @@ Ghost() {
 
 ScriptsNmap() {
 
-  printf "%b\n" "${Rd}ATUALIZANDO OS SCRIPTS, AGUARDE!${Fm}"
+  printf "%b\n" "${Rd}\nATUALIZANDO OS SCRIPTS, AGUARDE!${Fm}"
   sleep 2s
   sudo nmap --script-updatedb* 2>&-
 
   cd /usr/share/nmap/scripts/
-  OPT=$(fzf --color fg:124,bg:16,hl:202,fg+:214,bg+:52,hl+:231)
+  OPT=$(fzf --color fg:124,bg:16,hl:202,fg+:214,bg+:52,hl+:231 --border --reverse -i -e --tiebreak=begin)
   Ghost ${OPT}
 }
 
@@ -364,29 +364,19 @@ MenuNmap() {
 
     LinePrint
 
-    for N in "${!nmapwrite[@]}"; do
-      printf "%b" ${Rd}"\n [${Cy}${N}${Rd}]${Br} ${nmapwrite[$N]}"${Fm}
-      sleep 0.05s
-    done
-    echo "" # Não remover !!!
-    LinePrint
+    dig=$(
+      fzf --color fg:124,bg:16,hl:202,fg+:214,bg+:52,hl+:231 \
+      --reverse -i -e --tiebreak=begin --height=20 \
+      <<<$(for i in "${!nmapwrite[@]}"; do echo "$i-${nmapwrite[$i]}"; done)
+    )
+    dig="${dig%%-*}"
 
-    printf "%b\n" ${Red}"ESCOLHA UMA DAS OPÇÕES DO MENU ACIMA"${Fm}
-
-    read -p $'\e[37;1mR: \e[m' dig
-
-    if [[ "${dig}" =~ ^[[:alpha:]] ]]; then
-      printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!${Fim}\n${Vd}SÓ É ACEITO NÚMEROS!"${FIM}
-      sleep 2s && MenuNmap
-    else
-      case ${dig} in
-      0) Menu ;;
-      13) ScriptsNmap ;;
-      *) Ghost ${dig} ;;
-      esac
-    fi
+    case ${dig} in
+    0) Menu ;;
+    13) ScriptsNmap ;;
+    *) Ghost ${dig} ;;
+    esac
   done
-
 }
 
 AirmonStop() {
@@ -456,6 +446,13 @@ Reaver() {
 MenuWificrack() {
 
   clear
+
+  words=(
+    "Para retornar ao menu principal"
+    "Quebra do PIN WPS com REAVER"
+    "Quebra do PIN WPS com BULLY"
+  )
+
   while true; do
 
     LinePrint
@@ -466,34 +463,36 @@ MenuWificrack() {
     done
 
     LinePrint
-    printf "%b\n" ${Rd}" [${Cy}0${Rd}]${Br} Para retornar ao menu principal"${Fm}
-    printf "%b\n" ${Rd}" [${Cy}1${Rd}]${Br} Quebra do PIN WPS com REAVER"${Fm}
-    printf "%b\n" ${Rd}" [${Cy}2${Rd}]${Br} Quebra do PIN WPS com BULLY"${Fm}
-    LinePrint
-    printf "%b\n" ${Red}"ESCOLHA UMA DAS OPÇÕES DO MENU ACIMA"${Fm}
+    dig=$(
+      fzf --color fg:124,bg:16,hl:202,fg+:214,bg+:52,hl+:231 \
+      --reverse -i -e --tiebreak=begin --height=20 \
+      <<<$(for i in "${!words[@]}"; do echo "$i-${words[$i]}"; done)
+    )
+    dig="${dig%%-*}"
 
-    read -p $'\e[37;1mR: \e[m' dig
-
-    if [[ "${dig}" =~ ^[[:alpha:]] ]]; then
-      printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!${Fim}\n${Vd}SÓ É ACEITO NÚMEROS!"${FIM}
+    case ${dig} in
+    0) Menu ;;
+    1) Reaver ;;
+    2) Bully ;;
+    *)
+      printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!"${Fim}
       sleep 2s && MenuWificrack
-    else
-      case ${dig} in
-      0) Menu ;;
-      1) Reaver ;;
-      2) Bully ;;
-      *)
-        printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!"${Fim}
-        sleep 2s && MenuWificrack
-        ;;
-      esac
-    fi
+      ;;
+    esac
+
   done
 }
 
 Menu() {
 
   clear
+
+  MenuWords=(
+    "Para sair"
+    "Scanner usando o nmap"
+    "Quebra de senha wifi com WifiCrack"
+  )
+
   while true; do
 
     LinePrint
@@ -505,26 +504,20 @@ Menu() {
 
     printf "%b\n" ${Cy}"                               ${version}${Fm}"
     LinePrint
-    printf "%b\n" ${Rd}" [${Cy}0${Rd}]${Br} Para sair"${Fm}
-    printf "%b\n" ${Rd}" [${Cy}1${Rd}]${Br} Scanner usando o nmap"${Fm}
-    printf "%b\n" ${Rd}" [${Cy}2${Rd}]${Br} Quebra de senha wifi com WifiCrack"${Fm}
-    LinePrint
 
-    printf "%b\n" ${Red}"ESCOLHA UMA DAS OPÇÕES DO MENU ACIMA"${Fm}
+    dig=$(
+      fzf --color fg:124,bg:16,hl:202,fg+:214,bg+:52,hl+:231 \
+      --reverse -i -e --tiebreak=begin --height=20 \
+      <<<$(for i in "${!MenuWords[@]}"; do echo "$i-${MenuWords[$i]}"; done)
+    )
+    dig="${dig%%-*}"
 
-    read -p $'\e[37;1mR: \e[m' dig
-
-    if [[ "${dig}" =~ ^[[:alpha:]] ]]; then
-      printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!${Fim}\n${Vd}SÓ É ACEITO NÚMEROS!"${FIM}
-      sleep 2s && Menu
-    else
-      case ${dig} in
-      0) Exit ;;
-      1) MenuNmap ;;
-      2) MenuWificrack ;;
-      *) printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!"${Fim} && sleep 2s && Menu ;;
-      esac
-    fi
+    case ${dig} in
+    0) Exit ;;
+    1) MenuNmap ;;
+    2) MenuWificrack ;;
+    *) printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!"${Fim} && sleep 2s && Menu ;;
+    esac
   done
 }
 CheckRoot
