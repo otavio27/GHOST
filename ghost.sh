@@ -20,19 +20,17 @@
 # GitHub: https://github.com/robsonalexandre/progressbar
 # License: https://www.gnu.org/licenses/gpl-3.0.txt GNU GENERAL PUBLIC LICENSE
 #===============================================================#
-
-#===============================================================#
-# Resize do terminal corrente
-#===============================================================#
-ID=$(xdotool getactivewindow)
-xdotool windowsize --usehints ${ID} 78 38
-#===============================================================#
-
-readonly APP=$(readlink -f "${BASH_SOURCE[0]}")
-readonly APP_PATH=${APP%/*}
 version="Versão: 3.0"
 
-# Colors
+#==========================[Resize]=============================#
+ID=$(xdotool getactivewindow)
+xdotool windowsize --usehints ${ID} 78 38
+
+#=============================[Path]============================#
+readonly APP=$(readlink -f "${BASH_SOURCE[0]}")
+readonly APP_PATH=${APP%/*}
+
+#============================[Colors]===========================#
 Br="\e[37;1m"
 Rd="\e[31;1m"
 Red="\e[31;1;5m"
@@ -46,9 +44,7 @@ source "$APP_PATH/ProgressBar.sh"
 
 log="$APP_PATH/ghost-log.txt"
 
-#===============================================================#
-# Verifica se o usuário está logado como root
-#===============================================================#
+#==========================[CheckRoot]==========================#
 CheckRoot() {
 
   clear
@@ -63,9 +59,7 @@ CheckRoot() {
   fi
 }
 
-#=================================================================#
-# Verifica se existem dependências, e instala se nescessário.
-#=================================================================#
+#============================[CheckDependencies]============================#
 CheckDependencies() {
 
   deps=(
@@ -98,12 +92,14 @@ CheckDependencies() {
   fi
 }
 
+#=================================[LinePrint]=================================#
 LinePrint() {
 
   LINE=$(printf '%*s' "${columns:-$(tput cols)}" | tr ' ' "=")
   printf '%b\n' "${Rd}${LINE}${Fm}\n"
 }
 
+#==================================[Retorno]==================================#
 Retorno() {
 
   printf "%b\n" ${Rd}"\nRETORNAR PARA: NMAP${Fm}${Br} [N]${Fm}${Rd} WIFICRACK${Fm}${Br} [W]${Fm} ${Rd} MENU${Fm}${Br} [M]${Fm}"
@@ -123,12 +119,14 @@ Retorno() {
   esac
 }
 
+#===================================[Thanks]===================================#
 Thanks() {
 
   printf "%b\n" ${Rd}"\nSAINDO...${Vd}\n\nOBRIGADO POR USAR O GHOST..."${Fm}
   sleep 2s && clear && exit
 }
 
+#====================================[Exit]====================================#
 Exit() {
 
   if [[ -e $log ]]; then
@@ -145,6 +143,7 @@ Exit() {
   clear
 }
 
+#================================[OptionsExit]=================================#
 OptionExit() {
 
   printf "%b\n" ${Rd}"\nDESEJA SAIR DO GHOST?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
@@ -152,6 +151,7 @@ OptionExit() {
   [[ "${RES}" == @(n|N) ]] && Retorno || Exit
 }
 
+#==================================[OpenLog]==================================#
 OpenLog() {
 
   tput cnorm -- normal
@@ -163,6 +163,7 @@ OpenLog() {
   [[ "${RES}" == @(s|S) ]] && Retorno || Exit
 }
 
+#=================================[ProgressBar]=================================#
 ProgressBar() {
   #/**
   # * O comando sed formatará a saída de nmap --stats-every para o seguinte:
@@ -171,6 +172,7 @@ ProgressBar() {
   sed -u -n -r '/About/s/([^:]+): About ([0-9]+).[0-9]+%.*/\2 \1/p' - | "$APP_PATH/ProgressBar.sh" -z
 }
 
+#====================================[Nmap]====================================#
 Nmap() {
 
   case ${dig} in
@@ -191,6 +193,7 @@ Nmap() {
   nmap $NMAP_OPT $IP -oN $log --stats-every 1s 2>&- | ProgressBar
 }
 
+#=================================[NmapScanner]=================================#
 NmapScanner() {
 
   clear
@@ -211,6 +214,7 @@ NmapScanner() {
   Nmap ${dig}
 }
 
+#====================================[Mask]====================================#
 Mask() {
 
   mask=$(ipcalc --class ${ip})
@@ -228,6 +232,7 @@ Mask() {
   OpenLog
 }
 
+#=================================[FullRange]==================================#
 FullRange() {
 
   IFS='.' read C1 C2 C3 C4 <<<${ip}
@@ -250,6 +255,7 @@ FullRange() {
   done
 }
 
+#====================================[IPF]====================================#
 IPF() {
 
   [[ ${dig} -eq 4 ]] && read -p $'\e[1;31m\nDIGITE A PORTA OU PORTAS. Ex: 22 ou 22,80,443\nR: \e[m' port
@@ -273,6 +279,7 @@ IPF() {
   fi
 }
 
+#====================================[Redes]====================================#
 Rede() {
 
   read -p $'\e[1;31m\nDIGITE O IP OU URL.\nR: \e[m' dns
@@ -302,6 +309,7 @@ Rede() {
   fi
 }
 
+#===================================[Ghost]===================================#
 Ghost() {
 
   case ${dig} in
@@ -321,6 +329,7 @@ Ghost() {
   esac
 }
 
+#=================================[ScriptsNmap]=================================#
 ScriptsNmap() {
 
   sudo nmap --script-updatedb* 2>&-
@@ -332,6 +341,7 @@ ScriptsNmap() {
   Ghost ${OPT}
 }
 
+#==================================[MenuNmap]==================================#
 MenuNmap() {
 
   clear
@@ -363,6 +373,7 @@ MenuNmap() {
   done
 }
 
+#==================================[AirmonStop]==================================#
 AirmonStop() {
 
   printf "%b\n" ${Vd}"DESABILITANDO A PLACA DE REDE DO MODO MONITOR"${Fm}
@@ -371,6 +382,7 @@ AirmonStop() {
   Thanks
 }
 
+#====================================[Airmon]====================================#
 Airmon() {
 
   clear
@@ -392,6 +404,7 @@ Airmon() {
   printf "%b\n" ${Rd}"OBTENDO REDES WIFI DISPONIVEIS, O PROCESSO LEVARÁ ALGUNS SEGUNDOS\n"${Fm}
 }
 
+#=====================================[Wash]=====================================#
 Wash() {
 
   sudo timeout --preserve-status 30 wash -i ${LAN[$P]%%:*}mon | tee MACS.txt
@@ -407,6 +420,7 @@ Wash() {
   printf "%b\n" ${Cy}"\nESTE PROCESSO PODE DEMORAR VÁRIOS MINUTOS\nAGUARDE O FIM DO PROCESSO...\n"${Fm}
 }
 
+#====================================[Bully]====================================#
 Bully() {
 
   Airmon
@@ -417,6 +431,7 @@ Bully() {
   [[ "${RES}" == @(s|S) ]] && Retorno || AirmonStop ${LAN[$P]%%*}mon
 }
 
+#====================================[Reaver]====================================#
 Reaver() {
 
   Airmon
@@ -427,6 +442,7 @@ Reaver() {
   [[ "${RES}" == @(s|S) ]] && Retorno || AirmonStop ${LAN[$P]%%:*}mon
 }
 
+#=================================[MenuWificrack]=================================#
 MenuWificrack() {
 
   clear
@@ -462,6 +478,7 @@ MenuWificrack() {
   done
 }
 
+#====================================[Menu]====================================#
 Menu() {
 
   clear
