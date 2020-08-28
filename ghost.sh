@@ -41,6 +41,7 @@ Cy="\e[0;36m"
 Fm="\e[0m"
 
 source "$APP_PATH/logos.sh"
+source "$APP_PATH/messages.sh"
 source "$APP_PATH/ProgressBar.sh"
 
 log="$APP_PATH/ghost-log.txt"
@@ -57,7 +58,7 @@ CheckRoot() {
     printf "%b\n" ${Red}"\nNÃO É POSSIVEL EXECUTAR SEM SUDO..."${Fm}
     sleep 1s && exit 1
   else
-    printf "%b\n" ${Rd}"\n\t\t======[${Fm}${Br}STARTANDO O PROGRAMA AGUARDE!${Fm}${Rd}]======"${Fm}
+    printf "%b\n" ${Rd}"\n\t\t======[${Br}STARTANDO O PROGRAMA AGUARDE!${Rd}]======"${Fm}
     sleep 1s
   fi
 }
@@ -334,24 +335,6 @@ ScriptsNmap() {
 MenuNmap() {
 
   clear
-
-  nmapwrite=(
-    "Para retornar ao menu principal"
-    "Informações somente de portas abertas"
-    "Informações de qual Sistema Operacional"
-    "Informações do sistema Operacional, versões dos serviços e portas"
-    "Informações somente de uma porta, ou portas em específico"
-    "Bruteforce MYSQL? Use com responsabilidade!!!"
-    "Detectar falhas em servidores, saída do tipo verbose -v"
-    "Realizar pesquisas sobre alvos"
-    "Buscar falhas de DDoS"
-    "Scan de firewall com fragmentos de pacotes"
-    "Scan de firewall com MAC spoofing"
-    "Scan de host utilizando serviços UDP"
-    "Scan decoys (camufla o ip)"
-    "Scan com escolha de scripts "
-  )
-
   while true; do
 
     LinePrint
@@ -447,13 +430,6 @@ Reaver() {
 MenuWificrack() {
 
   clear
-
-  words=(
-    "Retornar ao menu principal"
-    "Quebra do PIN WPS com REAVER"
-    "Quebra do PIN WPS com BULLY"
-  )
-
   while true; do
 
     LinePrint
@@ -462,6 +438,7 @@ MenuWificrack() {
       printf "%b\n" ${Cy}"\t${WIFI[$X]}"${Fm}
       sleep 0.05s
     done
+    
     printf "%b\n" ${Cy}"                               ${version}${Fm}"
 
     LinePrint
@@ -488,13 +465,6 @@ MenuWificrack() {
 Menu() {
 
   clear
-
-  MenuWords=(
-    "Para sair"
-    "Nmap Scanner"
-    "WifiCrack"
-  )
-
   while true; do
 
     LinePrint
