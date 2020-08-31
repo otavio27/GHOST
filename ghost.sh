@@ -38,11 +38,12 @@ Vd="\e[32;1m"
 Cy="\e[0;36m"
 Fm="\e[0m"
 
+#============================[Paths]============================#
 source "$APP_PATH/logos.sh"
 source "$APP_PATH/messages.sh"
 source "$APP_PATH/ProgressBar.sh"
 
-log="$APP_PATH/ghost-log.txt"
+log="$APP_PATH/log.txt"
 
 #==========================[CheckRoot]==========================#
 CheckRoot() {
@@ -238,7 +239,6 @@ FullRange() {
   IFS='.' read C1 C2 C3 C4 <<<${ip}
 
   while :; do
-
     for X in {1..255}; do
       IP=$"$C1.${C2//*/$X}.${C3//*/0}.${C4//*/1}"
       NmapScanner ${IP} continue
@@ -320,7 +320,7 @@ Ghost() {
         sleep 2s && MenuNmap
       else
         printf "%b\n" ${Rd}"\nESCANEAR IP OU REDE?${Fm}${Br} [I/R]"${Fm}
-        printf "%b\n" ${Rd}"\nTODAS AS SAÍDAS SERÃO DIRECIONADAS PARA O ARQUIVO:${Fm}${Cy} $log"${Fm}
+        printf "%b\n" ${Rd}"\nTODAS AS SAÍDAS SERÃO DIRECIONADAS PARA O ARQUIVO:${Fm}${Cy} ${log}"${Fm}
         read -p $'\e[1;37mR: \e[m' RES
         [[ "${RES}" == @(i|I) ]] && IPF ${dig} || [[ "${RES}" == @(r|R) ]] && Rede ${dig} || OptionExit
       fi ;;
@@ -348,14 +348,11 @@ MenuNmap() {
   while true; do
 
     LinePrint
-  
     for X in "${!NMAP[@]}"; do
       printf "%b\n" ${Vd}"\t\t ${NMAP[$X]}"${Fm}
       sleep 0.05s
     done
-
     printf "%b\n" ${Cy}"                               ${version}${Fm}"
-
     LinePrint
 
     dig=$(
@@ -449,14 +446,11 @@ MenuWificrack() {
   while true; do
 
     LinePrint
-
     for X in "${!WIFI[@]}"; do
       printf "%b\n" ${Cy}"\t${WIFI[$X]}"${Fm}
       sleep 0.05s
     done
-    
     printf "%b\n" ${Cy}"                               ${version}${Fm}"
-
     LinePrint
 
     dig=$(
@@ -485,12 +479,10 @@ Menu() {
   while true; do
 
     LinePrint
-
     for X in "${!GHOST[@]}"; do
       printf "%b\n" ${Rd}"\t\t${GHOST[$X]}"${Fm}
       sleep 0.05s
     done
-
     printf "%b\n" ${Cy}"                               ${version}${Fm}"
     LinePrint
 
