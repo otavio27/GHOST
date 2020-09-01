@@ -52,7 +52,7 @@ CheckRoot() {
   clear
 
   if [[ $EUID -ne 0 ]]; then
-    printf "%b\n" ${Vd}"\nPARA EXECUTAR ESSE PROGRAMA, RODE${Fm} ${Rd}sudo ./ghost"${Fm}
+    printf "%b\n" ${Vd}"\nPARA EXECUTAR ESSE PROGRAMA, RODE ${Rd}sudo ./ghost"${Fm}
     printf "%b\n" ${Red}"\nNÃO É POSSIVEL EXECUTAR SEM SUDO..."${Fm}
     sleep 1s && exit 1
   else
@@ -76,7 +76,7 @@ CheckDependencies() {
   done
 
   if [[ ${#missing[@]} -ne 0 ]]; then
-    printf "%b\n" ${Rd}"\n\tFALTAM AS DEPENDÊNCIAS:${Fm}${Cy} ${missing[@]}"${Fm}
+    printf "%b\n" ${Rd}"\n\tFALTAM AS DEPENDÊNCIAS:${Cy} ${missing[@]}"${Fm}
     read -p $'\e[1;31m\n\t\tINSTALAR AS DEPENDÊNCIAS?\nR: \e[m' RES
     if [[ "${RES,,}" == @(s|sim) ]]; then
       sudo apt update -qq && sudo apt install ${missing[@]} -y -qq
@@ -125,7 +125,7 @@ PrintLogos() {
 #==================================[Retorno]==================================#
 Retorno() {
 
-  printf "%b\n" ${Rd}"\nRETORNAR PARA: NMAP${Fm}${Br} [N]${Fm}${Rd} WIFICRACK${Fm}${Br} [W]${Fm} ${Rd} MENU${Fm}${Br} [M]${Fm}"
+  printf "%b\n" ${Rd}"\nRETORNAR PARA: NMAP${Br} [N]${Rd} WIFICRACK${Br} [W] ${Rd} MENU${Br} [M]${Fm}"
   read -p $'\e[1;37mR: \e[m' RES
   case ${RES^^} in
     N)
@@ -153,7 +153,7 @@ Thanks() {
 Exit() {
 
   if [[ -e $log ]]; then
-    printf "%b\n" ${Rd}"\nEXCLUIR O ARQUIVO ${Cy}${log##*/}${Fm}${Rd}?${Fm}${Rd} [${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
+    printf "%b\n" ${Rd}"\nEXCLUIR O ARQUIVO ${Cy}${log##*/}${Rd}?${Rd} [${Br}S/N${Rd}]"${Fm}
     read -p $'\e[1;37mR: \e[m' RES
     if [[ "${RES}" == @(s|S) ]]; then
       sudo rm -rf "$log" && printf "%b\n" ${Vd}"\nARQUIVO EXCLUIDO COM SUCESSO!"${Fm} && Thanks
@@ -169,7 +169,7 @@ Exit() {
 #================================[OptionsExit]=================================#
 OptionExit() {
 
-  printf "%b\n" ${Rd}"\nDESEJA SAIR DO GHOST?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
+  printf "%b\n" ${Rd}"\nDESEJA SAIR DO GHOST?"${Rd} "[${Br}S/N${Rd}]"${Fm}
   read -p $'\e[1;37mR: \e[m' RES
   [[ "${RES}" == @(n|N) ]] && Retorno || Exit
 }
@@ -178,10 +178,10 @@ OptionExit() {
 OpenLog() {
 
   tput cnorm -- normal
-  printf "%b\n" "${Rd}\nABRIR O ARQUIVO${Fm}${Cy} ${log##*/}?${Fm} ${Rd}[${Fm}${Br}S/N${Rd}]${Fm}\n${Fm}R: ${Fm}"
+  printf "%b\n" "${Rd}\nABRIR O ARQUIVO${Cy} ${log##*/}? ${Rd}[${Br}S/N${Rd}]\nR: ${Fm}"
   read RES
   [[ "${RES,,}" == @(s|sim) ]] && cat "$log" || Retorno
-  printf "%b\n" ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
+  printf "%b\n" ${Rd}"RETORNAR?"${Rd} "[${Br}S/N${Rd}]"${Fm}
   read -p $'\e[1;37mR: \e[m' RES
   [[ "${RES}" == @(s|S) ]] && Retorno || Exit
 }
@@ -242,7 +242,7 @@ Mask() {
   mask=$(ipcalc --class ${ip})
 
   if [[ "${mask}" = "invalid" ]]; then
-    printf "%b\n" ${Rd}"\nO [ ${Fm}${Br}${ip}${Fm}${Rd} ] É UM IP INVÁLIDO!!!"${Fm}
+    printf "%b\n" ${Rd}"\nO [ ${Br}${ip}${Rd} ] É UM IP INVÁLIDO!!!"${Fm}
     read -p $'\e[1;31m\nDIGITE UM IP VÁLIDO!.\nR: \e[m' ip && Mask
   else
     case ${mask} in
@@ -288,14 +288,14 @@ IPF() {
     if [[ ${IP} =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
       NmapScanner ${dig} && OpenLog
     else
-      printf "%b\n" ${Rd}"\nO [ ${Fm}${Br}${dns}${Fm}${Rd} ] É INVÁLIDO!!!"${Fm} && IPF
+      printf "%b\n" ${Rd}"\nO [ ${Br}${dns}${Rd} ] É INVÁLIDO!!!"${Fm} && IPF
     fi
   else
     # Tomada de decisão com responsabilidade de validação de IP
     if [[ ${dns} =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
       IP="${dns}" && NmapScanner ${dig} && OpenLog
     else
-      printf "%b\n" ${Rd}"\nO [ ${Fm}${Br}${dns}${Fm}${Rd} ] É UM IP INVÁLIDO!!!"${Fm} && IPF
+      printf "%b\n" ${Rd}"\nO [ ${Br}${dns}${Rd} ] É UM IP INVÁLIDO!!!"${Fm} && IPF
     fi
   fi
 }
@@ -325,7 +325,7 @@ Rede() {
         Mask
       fi
     else
-      printf "%b\n" ${Rd}"\nO [ ${Fm}${Br}${dns}${Fm}${Rd} ] É UM IP INVÁLIDO!!!"${Fm} && Rede
+      printf "%b\n" ${Rd}"\nO [ ${Br}${dns}${Rd} ] É UM IP INVÁLIDO!!!"${Fm} && Rede
     fi
   fi
 }
@@ -340,8 +340,8 @@ Ghost() {
         printf "%b\n" "${Rd}\nOPÇÃO INVÁLIDA!!!"${Fim}
         sleep 2s && MenuNmap
       else
-        printf "%b\n" ${Rd}"\nESCANEAR IP OU REDE?${Fm}${Br} [I/R]"${Fm}
-        printf "%b\n" ${Rd}"\nTODAS AS SAÍDAS SERÃO DIRECIONADAS PARA O ARQUIVO:${Fm}${Cy} ${log}"${Fm}
+        printf "%b\n" ${Rd}"\nESCANEAR IP OU REDE?${Br} [I/R]"${Fm}
+        printf "%b\n" ${Rd}"\nTODAS AS SAÍDAS SERÃO DIRECIONADAS PARA O ARQUIVO:${Cy} ${log}"${Fm}
         read -p $'\e[1;37mR: \e[m' RES
         [[ "${RES}" == @(i|I) ]] && IPF ${dig} || [[ "${RES}" == @(r|R) ]] && Rede ${dig} || OptionExit
       fi ;;
@@ -424,7 +424,7 @@ Wash() {
   printf "%b\n" ${Rd}"\nESCOLHA UMA REDE PARA ATAQUE\n"${Fm}
 
   for ((X = 0; X < ${#MACS[@]}; X = X + 2)); do
-    printf "%b\n" ${Rd}"[$X] MAC:${Fm} ${Vd}${MACS[$X]}"${Fm}
+    printf "%b\n" ${Rd}"[$X] MAC: ${Vd}${MACS[$X]}"${Fm}
   done
 
   read -p $'\e[31;1m\nDIGITE O ÍNDICE DA REDE ESCOLHIDA R: \e[m' I
@@ -437,7 +437,7 @@ Bully() {
   Airmon
   Wash
   bully ${LAN[$P]%%:*}mon -b${MACS[$I]} -c${MACS[$I + 1]} -d -A -F -B -l 5
-  printf "%b\n" ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
+  printf "%b\n" ${Rd}"RETORNAR?"${Rd} "[${Br}S/N${Rd}]"${Fm}
   read -p $'\e[1;37mR: \e[m' RES
   [[ "${RES}" == @(s|S) ]] && Retorno || AirmonStop ${LAN[$P]%%*}mon
 }
@@ -448,7 +448,7 @@ Reaver() {
   Airmon
   Wash
   reaver -c${MACS[$I + 1]} -b${MACS[$I]} -vv -i ${LAN[$P]%%:*}mon -L -Z -K 1
-  printf "%b\n" ${Rd}"RETORNAR?"${Fm}${Rd} "[${Fm}${Br}S/N${Fm}${Rd}]"${Fm}
+  printf "%b\n" ${Rd}"RETORNAR?"${Rd} "[${Br}S/N${Rd}]"${Fm}
   read -p $'\e[1;37mR: \e[m' RES
   [[ "${RES}" == @(s|S) ]] && Retorno || AirmonStop ${LAN[$P]%%:*}mon
 }
