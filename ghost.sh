@@ -22,6 +22,8 @@
 #===============================================================#
 version="Versão: 3.0"
 
+GhostMenus=0
+
 #==========================[Resize]=============================#
 ID=$(xdotool getactivewindow)
 xdotool windowsize --usehints ${ID} 78 38
@@ -98,6 +100,27 @@ LinePrint() {
 
   LINE=$(printf '%*s' "${columns:-$(tput cols)}" | tr ' ' "=")
   printf '%b\n' "${Rd}${LINE}${Fm}\n"
+}
+
+#=================================[PrintLogos]=================================#
+PrintLogos() {
+
+  case $GhostMenus in
+    1) GHOST=("${MENU[@]}") && cor="${Rd}\t\t" ;;
+    2) GHOST=("${NMAP[@]}") && cor="${Vd}\t\t" ;;
+    3) GHOST=("${WIFI[@]}") && cor="${Cy}\t" ;;
+  esac
+
+  LinePrint
+  for X in "${!GHOST[@]}"; do
+    printf "%b\n" ${cor}" ${GHOST[$X]}"${Fm}
+    sleep 0.05s
+  done
+
+  if [[ $GhostMenus -eq 1 ]]; then
+    printf "%b\n" ${Cy}"\n\t\t\t\t${version}${Fm}"
+  fi
+  LinePrint
 }
 
 #==================================[Retorno]==================================#
@@ -201,13 +224,12 @@ NmapScanner() {
   tput civis -- invisible
 
   LinePrint
-  # printf "%b\n" ${Rd}"\n\t\t\t[ ${Fm}${Br}GHOST${Fm}${Rd} ]"${Fm}
   if [[ ${dns} =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-    printf "%b\n" ${Rd}"\nDISPARANDO SCANNER NO ALVO: >>> [ "${FM}${Cy}"${IP}"${Fm}${Rd}" ]"${Fm}
+    printf "%b\n" ${Rd}"DISPARANDO SCANNER NO ALVO: >>> [ ${Cy}${IP}${Rd} ]"${Fm}
     printf "%b\n" ${Vd}"\nESTE PROCESSO PODE DEMORAR, AGUARDE ATÉ O FIM."${Fm}
   else
-    printf "%b\n" ${Rd}"\nDNS INFORMADO: >>> [ "${FM}${Cy}"${dns}"${Fm}${Rd}" ]"${Fm}
-    printf "%b\n" ${Rd}"\nDISPARANDO SCANNER NO IP DO ALVO: >>> [ "${FM}${Cy}"${IP}"${Fm}${Rd}" ]"${Fm}
+    printf "%b\n" ${Rd}"DNS INFORMADO: >>> [ ${Cy}${dns}${Rd} ]"${Fm}
+    printf "%b\n" ${Rd}"\nDISPARANDO SCANNER NO IP DO ALVO: >>> [ ${Cy}${IP}${Rd} ]"${Fm}
     printf "%b\n" ${Vd}"\nESTE PROCESSO PODE DEMORAR, AGUARDE ATÉ O FIM."${Fm}
   fi
   LinePrint
@@ -345,16 +367,9 @@ ScriptsNmap() {
 MenuNmap() {
 
   clear
+  GhostMenus=2
   while true; do
-
-    LinePrint
-    for X in "${!NMAP[@]}"; do
-      printf "%b\n" ${Vd}"\t\t ${NMAP[$X]}"${Fm}
-      sleep 0.05s
-    done
-    printf "%b\n" ${Cy}"                               ${version}${Fm}"
-    LinePrint
-
+    PrintLogos
     dig=$(
       fzf --color fg:124,bg:16,hl:202,fg+:214,bg+:52,hl+:231 \
       --reverse -i -e --tiebreak=begin --height=20 \
@@ -443,16 +458,9 @@ Reaver() {
 MenuWificrack() {
 
   clear
+  GhostMenus=3
   while true; do
-
-    LinePrint
-    for X in "${!WIFI[@]}"; do
-      printf "%b\n" ${Cy}"\t${WIFI[$X]}"${Fm}
-      sleep 0.05s
-    done
-    printf "%b\n" ${Cy}"                               ${version}${Fm}"
-    LinePrint
-
+    PrintLogos
     dig=$(
       fzf --color fg:124,bg:16,hl:202,fg+:214,bg+:52,hl+:231 \
       --reverse -i -e --tiebreak=begin --height=20 \
@@ -476,16 +484,9 @@ MenuWificrack() {
 Menu() {
 
   clear
+  GhostMenus=1
   while true; do
-
-    LinePrint
-    for X in "${!GHOST[@]}"; do
-      printf "%b\n" ${Rd}"\t\t${GHOST[$X]}"${Fm}
-      sleep 0.05s
-    done
-    printf "%b\n" ${Cy}"                               ${version}${Fm}"
-    LinePrint
-
+    PrintLogos
     dig=$(
       fzf --color fg:124,bg:16,hl:202,fg+:214,bg+:52,hl+:231 \
       --reverse -i -e --tiebreak=begin --height=20 \
