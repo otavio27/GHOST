@@ -25,8 +25,7 @@ version="Versão: 3.0"
 GhostMenus=0
 
 #==========================[Resize]=============================#
-ID=$(xdotool getactivewindow)
-xdotool windowsize --usehints ${ID} 78 38
+xdotool windowsize --usehints $(xdotool getactivewindow) 78 38
 
 #=============================[Path]============================#
 readonly APP=$(readlink -f "${BASH_SOURCE[0]}")
