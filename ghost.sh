@@ -436,7 +436,7 @@ Bully() {
 
   Airmon
   Wash
-  bully ${LAN[$P]%%:*}mon -b${MACS[$I]} -c${MACS[$I + 1]} -d -A -F -B -l 5
+  bully ${LAN[$P]%%:*}mon -b ${MACS[$I]} -c ${MACS[$I + 1]} -d -A -F -B -l 5
   printf "%b\n" ${Rd}"RETORNAR?"${Rd} "[${Br}S/N${Rd}]"${Fm}
   read -p $'\e[1;37mR: \e[m' RES
   [[ "${RES}" == @(s|S) ]] && Retorno || AirmonStop ${LAN[$P]%%*}mon
@@ -447,7 +447,7 @@ Reaver() {
 
   Airmon
   Wash
-  reaver -c${MACS[$I + 1]} -b${MACS[$I]} -vv -i ${LAN[$P]%%:*}mon -L -Z -K 1
+  reaver -c ${MACS[$I + 1]} -b ${MACS[$I]} -vv -i ${LAN[$P]%%:*}mon -L -Z -K 1
   printf "%b\n" ${Rd}"RETORNAR?"${Rd} "[${Br}S/N${Rd}]"${Fm}
   read -p $'\e[1;37mR: \e[m' RES
   [[ "${RES}" == @(s|S) ]] && Retorno || AirmonStop ${LAN[$P]%%:*}mon
