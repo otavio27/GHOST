@@ -199,7 +199,7 @@ ProgressBar() {
 Nmap() {
 
   case ${dig} in
-    1) NMAP_OPT="-f -sS -vv -T4 -Pn" ;;
+    1) NMAP_OPT="-f -sS -vv -T4 -p- -Pn" ;;
     2) NMAP_OPT="-O -vv -Pn" ;;
     3) NMAP_OPT="-sS -sV -vv -O -T4 -Pn" ;;
     4) NMAP_OPT="-sS -vv -Pn -p $port" ;;
