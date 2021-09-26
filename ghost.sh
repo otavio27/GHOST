@@ -24,9 +24,6 @@ version="Versão: 3.0"
 
 GhostMenus=0
 
-#==========================[Resize]=============================#
-xdotool windowsize --usehints $(xdotool getactivewindow) 78 38
-
 #=============================[Path]============================#
 readonly APP=$(readlink -f "${BASH_SOURCE[0]}")
 readonly APP_PATH=${APP%/*}
@@ -46,11 +43,18 @@ source "$APP_PATH/ProgressBar.sh"
 
 log="$APP_PATH/log.txt"
 
+#==========================[Resize]=============================#
+ResizeTerminal() {
+  xdotool windowsize --usehints $(xdotool getactivewindow) 78 38
+  Menu
+}
+
 #==========================[CheckRoot]==========================#
 CheckRoot() {
 
   clear
-
+  ResizeTerminal
+  
   if [[ $EUID -ne 0 ]]; then
     printf "%b\n" ${Vd}"\nPARA EXECUTAR ESSE PROGRAMA, RODE ${Rd}sudo ./ghost"${Fm}
     printf "%b\n" ${Red}"\nNÃO É POSSIVEL EXECUTAR SEM SUDO..."${Fm}
@@ -76,13 +80,21 @@ CheckDependencies() {
   done
 
   if [[ ${#missing[@]} -ne 0 ]]; then
-    printf "%b\n" ${Rd}"\n\tFALTAM AS DEPENDÊNCIAS:${Cy} ${missing[@]}"${Fm}
-    read -p $'\e[1;31m\n\t\tINSTALAR AS DEPENDÊNCIAS?\nR: \e[m' RES
+    printf "%b\n" ${Rd}"\nFALTAM AS DEPENDÊNCIAS:"${Fm}
+
+    for dep in "${!missing[@]}"; do
+      printf "%b\n${Cy}${dep} - ${missing[dep]}"${Fm}
+    done
+
+    read -p $'\e[1;31m\n\nINSTALAR AS DEPENDÊNCIAS? [S/N]\nR: \e[m' RES
+
     if [[ "${RES,,}" == @(s|sim) ]]; then
       sudo apt update -qq && sudo apt install ${missing[@]} -y -qq
       printf "%b\n" ${Vd}"\n\t\tTODAS AS DEPENDÊNCIAS FORAM INSTALADAS"${Fm}
-      sleep 1s && Menu
-    elif [[ "${RES,,}" == @(n|não) ]]; then
+      sleep 1s && ResizeTerminal
+    fi
+
+    if [[ "${RES,,}" == @(n|não) ]]; then
       printf "%b\n" ${Rd}"\n\t\tNÃO É POSSÍVEL PROSSEGUIR SEM INSTALAR AS DEPENDÊNCIAS"${Fm}
       sleep 3s && Thanks
     else
@@ -90,7 +102,7 @@ CheckDependencies() {
     fi
   else
     printf "%b\n" ${Vd}"\n\t\t  NÃO HÁ DEPENDÊNCIAS A SEREM INSTALADAS"${Fm}
-    sleep 1s
+    sleep 1s && ResizeTerminal
   fi
 }
 
