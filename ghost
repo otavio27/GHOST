@@ -23,6 +23,8 @@
 version="Versão: 3.0"
 
 GhostMenus=0
+lines=$(tput lines)
+Cols=$(tput cols)
 
 #=============================[Path]============================#
 readonly APP=$(readlink -f "${BASH_SOURCE[0]}")
@@ -45,12 +47,19 @@ log="$APP_PATH/log.txt"
 
 #==========================[Resize]=============================#
 ResizeTerminal() {
-  printf "%b\n" ${Red}"\nAJUSTANDO A TELA DO TERMINAL..."${Fm}
+  printf "%b\n" ${Rd}"\nAJUSTANDO A TELA DO TERMINAL..."${Fm}
   sleep 1s
   xdotool windowsize --usehints $(xdotool getactivewindow) 78 38
   printf "%b\n" ${Vd}"\nDONE..."${Fm}
   sleep 1s
   CheckRoot
+}
+
+ReturnResize() {
+  printf "%b\n" ${Rd}"\nAJUSTANDO A TELA DO TERMINAL AO TAMANHO ANTERIOR..."${Fm}
+  sleep 1s
+  xdotool windowsize --usehints $(xdotool getactivewindow) ${Cols} ${lines}
+  printf "%b\n" ${Vd}"\nDONE..."${Fm}
 }
 
 #==========================[CheckRoot]==========================#
@@ -160,6 +169,7 @@ Retorno() {
 #===================================[Thanks]===================================#
 Thanks() {
 
+  ReturnResize
   printf "%b\n" ${Rd}"\nSAINDO...${Vd}\n\nOBRIGADO POR USAR O GHOST..."${Fm}
   sleep 2s && clear && exit
 }
