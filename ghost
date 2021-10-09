@@ -45,15 +45,18 @@ log="$APP_PATH/log.txt"
 
 #==========================[Resize]=============================#
 ResizeTerminal() {
+  printf "%b\n" ${Red}"\nAJUSTANDO A TELA DO TERMINAL..."${Fm}
+  sleep 1s
   xdotool windowsize --usehints $(xdotool getactivewindow) 78 38
-  Menu
+  printf "%b\n" ${Vd}"\nDONE..."${Fm}
+  sleep 1s
+  CheckRoot
 }
 
 #==========================[CheckRoot]==========================#
 CheckRoot() {
 
   clear
-  ResizeTerminal
   
   if [[ $EUID -ne 0 ]]; then
     printf "%b\n" ${Vd}"\nPARA EXECUTAR ESSE PROGRAMA, RODE ${Rd}sudo ./ghost"${Fm}
@@ -91,7 +94,7 @@ CheckDependencies() {
     if [[ "${RES,,}" == @(s|sim) ]]; then
       sudo apt update -qq && sudo apt install ${missing[@]} -y -qq
       printf "%b\n" ${Vd}"\n\t\tTODAS AS DEPENDÊNCIAS FORAM INSTALADAS"${Fm}
-      sleep 1s && ResizeTerminal
+      sleep 1s
     fi
 
     if [[ "${RES,,}" == @(n|não) ]]; then
@@ -102,7 +105,7 @@ CheckDependencies() {
     fi
   else
     printf "%b\n" ${Vd}"\n\t\t  NÃO HÁ DEPENDÊNCIAS A SEREM INSTALADAS"${Fm}
-    sleep 1s && ResizeTerminal
+    sleep 1s
   fi
 }
 
@@ -513,7 +516,7 @@ Menu() {
     esac
   done
 }
-CheckRoot
+ResizeTerminal
 CheckDependencies
 Menu
 #=============================================================[FIM]==================================================================#
