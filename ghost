@@ -49,17 +49,17 @@ log="$APP_PATH/log.txt"
 #==========================[Resize Terminal]=============================#
 ResizeTerminal() {
   printf "%b\n" ${Rd}"\nAJUSTANDO A TELA DO TERMINAL..."${Fm}
-  sleep 1s
-  xdotool windowsize --usehints $(xdotool getactivewindow) 78 38
+  sleep 0.5s
+  xdotool windowsize --usehints $(xdotool getactivewindow) 80 38
   printf "%b\n" ${Vd}"\nDONE..."${Fm}
-  sleep 1s
+  sleep 0.5s
   CheckRoot
 }
 
 #==========================[Return Resize]=============================#
 ReturnResize() {
   printf "%b\n" ${Rd}"\nAJUSTANDO A TELA DO TERMINAL AO TAMANHO ANTERIOR..."${Fm}
-  sleep 1s
+  sleep 0.05s
   xdotool windowsize --usehints $(xdotool getactivewindow) ${Cols} ${lines}
   printf "%b\n" ${Vd}"\nDONE..."${Fm}
 }
