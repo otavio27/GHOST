@@ -20,8 +20,9 @@
 # GitHub: https://github.com/robsonalexandre/progressbar
 # License: https://www.gnu.org/licenses/gpl-3.0.txt GNU GENERAL PUBLIC LICENSE
 #===============================================================#
-version="Versão: 3.0"
+version="Versão: 3.1"
 
+#=====================[Variaveis Global]========================#
 GhostMenus=0
 lines=$(tput lines)
 Cols=$(tput cols)
@@ -45,7 +46,7 @@ source "$APP_PATH/ProgressBar.sh"
 
 log="$APP_PATH/log.txt"
 
-#==========================[Resize]=============================#
+#==========================[Resize Terminal]=============================#
 ResizeTerminal() {
   printf "%b\n" ${Rd}"\nAJUSTANDO A TELA DO TERMINAL..."${Fm}
   sleep 1s
@@ -55,6 +56,7 @@ ResizeTerminal() {
   CheckRoot
 }
 
+#==========================[Return Resize]=============================#
 ReturnResize() {
   printf "%b\n" ${Rd}"\nAJUSTANDO A TELA DO TERMINAL AO TAMANHO ANTERIOR..."${Fm}
   sleep 1s
