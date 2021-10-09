@@ -48,20 +48,13 @@ log="$APP_PATH/log.txt"
 
 #==========================[Resize Terminal]=============================#
 ResizeTerminal() {
-  printf "%b\n" ${Rd}"\nAJUSTANDO A TELA DO TERMINAL..."${Fm}
-  sleep 0.5s
   xdotool windowsize --usehints $(xdotool getactivewindow) 80 38
-  printf "%b\n" ${Vd}"\nDONE..."${Fm}
-  sleep 0.5s
   CheckRoot
 }
 
 #==========================[Return Resize]=============================#
 ReturnResize() {
-  printf "%b\n" ${Rd}"\nAJUSTANDO A TELA DO TERMINAL AO TAMANHO ANTERIOR..."${Fm}
-  sleep 0.05s
   xdotool windowsize --usehints $(xdotool getactivewindow) ${Cols} ${lines}
-  printf "%b\n" ${Vd}"\nDONE..."${Fm}
 }
 
 #==========================[CheckRoot]==========================#
@@ -72,6 +65,7 @@ CheckRoot() {
   if [[ $EUID -ne 0 ]]; then
     printf "%b\n" ${Vd}"\nPARA EXECUTAR ESSE PROGRAMA, RODE ${Rd}sudo ./ghost"${Fm}
     printf "%b\n" ${Red}"\nNÃO É POSSIVEL EXECUTAR SEM SUDO..."${Fm}
+    ReturnResize
     sleep 1s && exit 1
   else
     printf "%b\n" ${Rd}"\n\t\t======[${Br}STARTANDO O PROGRAMA AGUARDE!${Rd}]======"${Fm}
@@ -171,9 +165,11 @@ Retorno() {
 #===================================[Thanks]===================================#
 Thanks() {
 
-  ReturnResize
   printf "%b\n" ${Rd}"\nSAINDO...${Vd}\n\nOBRIGADO POR USAR O GHOST..."${Fm}
-  sleep 2s && clear && exit
+  sleep 2s 
+  clear
+  ReturnResize 
+  exit
 }
 
 #====================================[Exit]====================================#
