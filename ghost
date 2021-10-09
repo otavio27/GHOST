@@ -69,7 +69,7 @@ CheckRoot() {
 CheckDependencies() {
 
   deps=(
-    "nmap" "ipcalc" "net-tools" "git" "pixiewps" "xdotool" "fzf"
+    "nmap" "ipcalc" "net-tools" "git" "pixiewps" "xdotool" "fzf" "bully"
     "build-essential" "libpcap-dev" "aircrack-ng" "reaver" "ethtool"
   )
 
